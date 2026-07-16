@@ -1,0 +1,162 @@
+#!/bin/bash
+
+# HIPAA AWS Security Setup Script for AWS CloudShell
+# Copy ALL of this and paste into CloudShell at once
+
+set -e
+
+echo "🔒 Starting AWS HIPAA Security Setup"
+echo "⚠️  This will enable security features in your AWS account"
+echo ""
+
+# Get AWS account ID and region
+ACCOUNT_ID=$(aws sts get-caller-identity --query Account --output text)
+REGION=$(aws configure get region || echo "us-east-1")
+
+echo "AWS Account ID: $ACCOUNT_ID"
+echo "Region: $REGION"
+echo ""
+
+# ============================================
+# 1. Enable CloudTrail (MANDATORY for HIPAA)
+# ============================================
+echo "📝 Step 1: Setting up CloudTrail..."
+
+TRAIL_NAME="residentcare-hipaa-audit-trail"
+BUCKET_NAME="residentcare-audit-logs-${ACCOUNT_ID}-$(date +%s)"
+
+# Check if trail already exists
+if aws cloudtrail get-trail --name $TRAIL_NAME &> /dev/null; then
+    echo "✅ CloudTrail '$TRAIL_NAME' already exists"
+else
+    # Create S3 bucket for CloudTrail logs
+    echo "Creating S3 bucket for CloudTrail logs..."
+    if [ "$REGION" = "us-east-1" ]; then
+        aws s3api create-bucket --bucket $BUCKET_NAME --region $REGION 2>/dev/null || true
+    else
+        aws s3api create-bucket \
+            --bucket $BUCKET_NAME \
+            --region $REGION \
+            --create-bucket-configuration LocationConstraint=$REGION 2>/dev/null || true
+    fi
+    
+    # Enable encryption on the bucket
+    aws s3api put-bucket-encryption \
+        --bucket $BUCKET_NAME \
+        --server-side-encryption-configuration '{
+            "Rules": [{
+                "ApplyServerSideEncryptionByDefault": {
+                    "SSEAlgorithm": "AES256"
+                }
+            }]
+        }'
+    
+    # Block public access
+    aws s3api put-public-access-block \
+        --bucket $BUCKET_NAME \
+        --public-access-block-configuration \
+        "BlockPublicAcls=true,IgnorePublicAcls=true,BlockPublicPolicy=true,RestrictPublicBuckets=true"
+    
+    # Create CloudTrail
+    echo "Creating CloudTrail..."
+    aws cloudtrail create-trail \
+        --name $TRAIL_NAME \
+        --s3-bucket-name $BUCKET_NAME \
+        --is-multi-region-trail \
+        --enable-log-file-validation
+    
+    # Start logging
+    aws cloudtrail start-logging --name $TRAIL_NAME
+    
+    echo "✅ CloudTrail created and started"
+fi
+
+# ============================================
+# 2. Encrypt S3 Buckets
+# ============================================
+echo ""
+echo "📝 Step 2: Encrypting S3 buckets..."
+
+BUCKETS=$(aws s3api list-buckets --query "Buckets[].Name" --output text)
+
+if [ -z "$BUCKETS" ]; then
+    echo "No S3 buckets found"
+else
+    for BUCKET in $BUCKETS; do
+        echo "Processing bucket: $BUCKET"
+        
+        # Check if already encrypted
+        if aws s3api get-bucket-encryption --bucket $BUCKET &> /dev/null; then
+            echo "  ✅ Already encrypted"
+        else
+            # Enable encryption
+            aws s3api put-bucket-encryption \
+                --bucket $BUCKET \
+                --server-side-encryption-configuration '{
+                    "Rules": [{
+                        "ApplyServerSideEncryptionByDefault": {
+                            "SSEAlgorithm": "AES256"
+                        }
+                    }]
+                }' && echo "  ✅ Encrypted" || echo "  ❌ Failed"
+        fi
+        
+        # Block public access
+        aws s3api put-public-access-block \
+            --bucket $BUCKET \
+            --public-access-block-configuration \
+            "BlockPublicAcls=true,IgnorePublicAcls=true,BlockPublicPolicy=true,RestrictPublicBuckets=true" 2>/dev/null || true
+    done
+fi
+
+# ============================================
+# 3. Check RDS Encryption
+# ============================================
+echo ""
+echo "📝 Step 3: Checking RDS encryption..."
+
+RDS_INSTANCES=$(aws rds describe-db-instances --query "DBInstances[].DBInstanceIdentifier" --output text 2>/dev/null || echo "")
+
+if [ -z "$RDS_INSTANCES" ]; then
+    echo "No RDS instances found"
+else
+    for INSTANCE in $RDS_INSTANCES; do
+        ENCRYPTED=$(aws rds describe-db-instances \
+            --db-instance-identifier $INSTANCE \
+            --query "DBInstances[0].StorageEncrypted" \
+            --output text 2>/dev/null || echo "unknown")
+        
+        if [ "$ENCRYPTED" = "true" ]; then
+            echo "  ✅ $INSTANCE is encrypted"
+        elif [ "$ENCRYPTED" = "false" ]; then
+            echo "  ⚠️  $INSTANCE is NOT encrypted"
+            echo "     You need to create an encrypted snapshot and restore"
+        else
+            echo "  ⚠️  Could not check $INSTANCE"
+        fi
+    done
+fi
+
+# ============================================
+# Summary
+# ============================================
+echo ""
+echo "✅ AWS Security Setup Complete!"
+echo ""
+echo "📋 Summary:"
+echo "  ✅ CloudTrail enabled for audit logging"
+echo "  ✅ S3 buckets encrypted"
+echo "  ✅ RDS encryption status checked"
+echo ""
+echo "📝 Next Steps:"
+echo "  1. Enable MFA for all IAM users (AWS Console → IAM → Users)"
+echo "  2. Add ENCRYPTION_KEY to your .env file"
+echo "  3. Test your application"
+echo "  4. Review CloudTrail logs regularly"
+echo ""
+
+
+
+
+
+

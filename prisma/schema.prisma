@@ -1,0 +1,2524 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+// Multi-tenancy: Tenant/Organization model
+model Tenant {
+  id        String   @id @default(uuid())
+  name      String
+  slug      String   @unique
+  isActive  Boolean  @default(true)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  users                   User[]
+  userTenants             UserTenant[]
+  refreshTokens           RefreshToken[]
+  pdfEmbeddings           PdfEmbedding[]
+  formSchemas             FormSchema[]
+  formDrafts              FormDraft[]
+  pdfTemplates            PdfTemplate[]
+  notes                   Note[]
+  residents               Resident[]
+  billingTiers            BillingTier[]
+  residentBillings        ResidentBilling[]
+  invoices                Invoice[]
+  claimsBillingRecords    ClaimsBillingRecord[]
+  claimsBillingTiers      ClaimsBillingTier[]
+  claimsProviderSettings  ClaimsProviderSettings?
+  medications             Medication[]
+  medicationSchedules     MedicationSchedule[]
+  marRecords              MarRecord[]
+  prnRecords              PrnRecord[]
+  vitalSigns              VitalSign[]
+  medicationPrescriptions MedicationPrescription[]
+  behavioralLogs          BehavioralLog[]
+  behavioralNotes         BehavioralNote[]
+  incidentReports         IncidentReport[]
+  carePlans               CarePlan[]
+  careLibraries           CareLibrary[]
+  ncpExtractions          NcpExtraction[]
+  facilities              Facility[]
+  staffMembers            StaffMember[]
+  roles                   CustomRole[]
+  appointments            Appointment[]
+  appointmentReminders    AppointmentReminder[]
+  appointmentNotifications AppointmentNotification[]
+  birthdayNotifications    BirthdayNotification[]
+  tasks                    Task[]
+
+  @@map("tenants")
+}
+
+// User model with multi-tenancy support
+// Note: SUPER_ADMIN role users can access all tenants (tenantId can be NULL)
+model User {
+  id              String   @id @default(uuid())
+  email           String   @unique
+  passwordHash    String
+  name            String
+  tenantId        String? // Optional for SUPER_ADMIN users
+  role            Role     @default(STAFF)
+  isEmailVerified Boolean  @default(false)
+  isActive        Boolean  @default(true)
+  dateOfBirth     DateTime? @map("date_of_birth") @db.Date
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
+
+  tenant                 Tenant?                 @relation(fields: [tenantId], references: [id], onDelete: SetNull)
+  refreshTokens          RefreshToken[]
+  passwordResetTokens    PasswordResetToken[]
+  formDrafts             FormDraft[]
+  notes                  Note[]                  @relation("NoteStaff") // Notes created by this staff member
+  noteVersions           NoteVersion[]           @relation("NoteVersionStaff") // Note versions created by this staff member
+  noteVersionCreations   NoteVersion[]           @relation("NoteVersionCreator") // Note versions created/edited by this user
+  marRecords             MarRecord[]             @relation("MarRecordCaregiver") // Records where user is caregiver
+  prnRecords             PrnRecord[]             @relation("PrnRecordCaregiver") // PRN records where user is caregiver
+  vitalSigns             VitalSign[]             @relation("VitalSignRecorder") // Vitals recorded by user
+  behavioralLogs         BehavioralLog[]         @relation("BehavioralLogStaff") // Behavioral logs created by user
+  behavioralNoteVersions BehavioralNoteVersion[] @relation("BehavioralNoteVersionCreator") // Behavioral note versions created/edited by user
+  incidentReportsStaff   IncidentReport[]        @relation("IncidentReportStaff")
+  carePlans              CarePlan[]              @relation("CarePlanCreator") // Care plans created by user
+  carePlanVersions       CarePlanVersion[]       @relation("CarePlanVersionCreator") // Care plan versions created/edited by user
+  careLibraries          CareLibrary[]           @relation("CareLibraryCreator") // Care library items created by user
+  ncpExtractions         NcpExtraction[]         @relation("NcpExtractionCreator") // NCP extractions created by user
+  ncpApprovalsGiven      NcpExtraction[]         @relation("NcpExtractionApprover") // NCP extractions approved by user
+  staffMember            StaffMember?            // Staff document management - links to User (role STAFF) created by admin
+  userRoleAssignments    UserRoleAssignment[]
+  userTenants            UserTenant[]
+  appointmentNotifications AppointmentNotification[]
+  birthdayNotifications    BirthdayNotification[]
+  fcmTokens                UserFcmToken[]
+  tasksCreated             Task[]                  @relation("TaskCreator")
+  tasksAssigned            Task[]                  @relation("TaskAssignee")
+
+  @@index([email])
+  @@index([tenantId])
+  @@map("users")
+}
+
+// User can belong to multiple tenants (e.g. one facility = one tenant; same login, switch between facilities)
+model UserTenant {
+  id        String   @id @default(uuid())
+  userId    String
+  tenantId  String
+  role      Role     @default(STAFF)
+  isPrimary Boolean  @default(false)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  user   User   @relation(fields: [userId], references: [id], onDelete: Cascade)
+  tenant Tenant @relation(fields: [tenantId], references: [id], onDelete: Cascade)
+
+  @@unique([userId, tenantId])
+  @@index([userId])
+  @@index([tenantId])
+  @@map("user_tenants")
+}
+
+// Enum for user roles
+enum Role {
+  SUPER_ADMIN // Can access all tenants, manage system
+  ADMIN // Can manage their tenant(s)
+  STAFF // Regular staff member
+  GUARDIAN // Guardian role
+}
+
+// Enum for note types
+enum NoteType {
+  Care // Care-related notes
+  Behavior // Behavior observation notes
+  Incident // Incident reports
+  StatusUpdate // Status update notes
+}
+
+// Refresh tokens for JWT rotation
+// Tokens are now user-specific, tenant context determined by UserTenant relationship
+model RefreshToken {
+  id        String   @id @default(uuid())
+  token     String   @unique
+  userId    String
+  tenantId  String? // Optional: for tenant-specific sessions
+  revoked   Boolean  @default(false)
+  expiresAt DateTime
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  user   User    @relation(fields: [userId], references: [id], onDelete: Cascade)
+  tenant Tenant? @relation(fields: [tenantId], references: [id], onDelete: Cascade)
+
+  @@index([userId])
+  @@index([tenantId])
+  @@index([token])
+  @@map("refresh_tokens")
+}
+
+// Password reset tokens
+model PasswordResetToken {
+  id        String   @id @default(uuid())
+  token     String   @unique
+  userId    String
+  used      Boolean  @default(false)
+  expiresAt DateTime
+  createdAt DateTime @default(now())
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId])
+  @@index([token])
+  @@map("password_reset_tokens")
+}
+
+// PDF Embeddings stored per tenant using pgvector
+model PdfEmbedding {
+  id        String                @id
+  tenantId  String
+  tenant    Tenant                @relation(fields: [tenantId], references: [id], onDelete: Cascade)
+  fileName  String?
+  content   String
+  embedding String?
+  createdAt DateTime              @default(now())
+
+  @@index([tenantId])
+  @@map("pdf_embeddings")
+}
+
+// WAC/RCW Regulation Embeddings for compliance
+model WacRcwRegulation {
+  id            String                @id @default(uuid())
+  type          String // 'wac' or 'rcw'
+  citeCode      String // e.g., '388-76-10600'
+  section       String // Same as citeCode
+  title         String
+  text          String                @db.Text // Regulation chunk text
+  effectiveDate String? // ISO date string
+  version       String? // Version number
+  source        String? // 'api' or 'web'
+  lastFetched   DateTime              @default(now())
+  chunkIndex    Int                   @default(0)
+  totalChunks   Int                   @default(1)
+  embedding     String?
+  createdAt     DateTime              @default(now())
+  updatedAt     DateTime              @updatedAt
+
+  @@index([type])
+  @@index([citeCode])
+  @@index([type, citeCode])
+  @@map("wac_rcw_regulations")
+}
+
+// AI-Generated Form Schemas per tenant
+model FormSchema {
+  id                  String    @id @default(uuid())
+  tenantId            String
+  tenant              Tenant    @relation(fields: [tenantId], references: [id], onDelete: Cascade)
+  formName            String
+  description         String?
+  schemaJson          Json // Stores the AI-generated form schema (includes WAC/RCW citations)
+  isActive            Boolean   @default(true)
+  createdBy           String? // User ID who triggered generation
+  isWacRcwCompliant   Boolean   @default(false) // Indicates if schema includes WAC/RCW citations
+  complianceVersion   String? // Version of compliance rules used (e.g., "2025-01")
+  lastComplianceCheck DateTime? // Last time compliance was validated
+  adminApproved       Boolean   @default(false) // HITL approval flag
+  adminApprovedBy     String? // User ID who approved
+  adminApprovedAt     DateTime? // When approved
+  complianceNotes     String? // Admin notes on compliance review
+  createdAt           DateTime  @default(now())
+  updatedAt           DateTime  @updatedAt
+
+  drafts FormDraft[]
+
+  @@index([tenantId])
+  @@index([tenantId, isActive])
+  @@index([isWacRcwCompliant])
+  @@index([adminApproved])
+  @@map("tenant_form_schemas")
+}
+
+// Form Drafts - Save partial form submissions
+model FormDraft {
+  id        String   @id @default(uuid())
+  tenantId  String
+  userId    String
+  formId    String
+  draftData Json // Partial form data
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  tenant Tenant     @relation(fields: [tenantId], references: [id], onDelete: Cascade)
+  user   User       @relation(fields: [userId], references: [id], onDelete: Cascade)
+  form   FormSchema @relation(fields: [formId], references: [id], onDelete: Cascade)
+
+  @@index([userId])
+  @@index([formId])
+  @@index([tenantId, userId])
+  @@index([formId, userId])
+  @@map("form_drafts")
+}
+
+// PDF Templates - Store PDF templates with field positions for form filling
+model PdfTemplate {
+  id           String   @id @default(uuid())
+  tenantId     String
+  tenant       Tenant   @relation(fields: [tenantId], references: [id], onDelete: Cascade)
+  fileName     String // Original PDF file name
+  fileHash     String? // SHA256 hash of PDF content for duplicate detection
+  s3Key        String // S3 storage key for the template PDF
+  s3Url        String // S3 URL for the template PDF
+  displayName  String? // Human-readable display name
+  description  String? // Optional description
+  fieldMapping Json // Maps form schema fields to PDF positions
+  isActive     Boolean  @default(true)
+  createdBy    String? // User ID who uploaded
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+
+  @@index([tenantId])
+  @@index([tenantId, isActive])
+  @@index([tenantId, fileHash]) // Index for duplicate detection
+  @@map("pdf_templates")
+}
+
+// Progress Notes - Daily notes for residents
+// residentId references Resident.id (UUID)
+model Note {
+  id             String    @id @default(uuid())
+  residentId     String // Reference to Resident.id (UUID)
+  residentName   String? // Resident name (stored for display purposes)
+  staffId        String? // User who created the note (null if user deleted)
+  staff          User?     @relation("NoteStaff", fields: [staffId], references: [id], onDelete: SetNull)
+  tenantId       String
+  tenant         Tenant    @relation(fields: [tenantId], references: [id], onDelete: Cascade)
+  type           NoteType // Note type: Care, Behavior, Incident, Status Update
+  description    String    @db.Text // Note description
+  currentVersion Int       @default(0) // Current version number (tracks latest version)
+  deletedAt      DateTime? // Soft delete timestamp (null = not deleted)
+  createdAt      DateTime  @default(now())
+  updatedAt      DateTime  @updatedAt
+
+  versions NoteVersion[] // Edit history
+
+  @@index([residentId])
+  @@index([staffId])
+  @@index([tenantId])
+  @@index([type])
+  @@index([createdAt])
+  @@index([tenantId, residentId])
+  @@index([tenantId, type])
+  @@index([tenantId, createdAt])
+  @@index([deletedAt])
+  @@map("notes")
+}
+
+// Resident - Dedicated resident table with all fields from fields.json
+model Resident {
+  id        String    @id @default(uuid())
+  tenantId  String
+  tenant    Tenant    @relation(fields: [tenantId], references: [id], onDelete: Cascade)
+  userId    String // User who created the resident
+  deletedAt DateTime? // Soft delete timestamp (null = not deleted)
+  createdAt DateTime  @default(now())
+  updatedAt DateTime  @updatedAt
+
+  // Resident Information (from fields.json)
+  residentFullLegalName   String?   @map("resident_full_legal_name")
+  residentPreferredName   String?   @map("resident_preferred_name")
+  residentDateOfBirth     DateTime? @map("resident_date_of_birth") @db.Date
+  residentGenderSex       String?   @map("resident_gender_sex")
+  residentSsn             String?   @map("resident_ssn")
+  residentMedicareNumber  String?   @map("resident_medicare_number")
+  residentMedicaidDshsId  String?   @map("resident_medicaid_dshs_id")
+  residentVaNumber        String?   @map("resident_va_number")
+  residentPrimaryLanguage String?   @map("resident_primary_language")
+  residentNeedInterpreter Boolean?  @map("resident_need_interpreter")
+
+  // Default claims billing tier (optional - used to pre-fill tier when creating billing records)
+  claimsBillingTierId String?   @map("claims_billing_tier_id")
+  claimsBillingTier   ClaimsBillingTier? @relation(fields: [claimsBillingTierId], references: [id], onDelete: SetNull)
+
+  // Client Information (client may differ from resident - e.g. guardian who submitted resident)
+  // Auto-populates when creating billing records
+  clientId        String? @map("client_id")
+  clientAddress   String? @map("client_address")
+  clientCity      String? @map("client_city")
+  clientState     String? @map("client_state")
+  clientZip       String? @map("client_zip")
+  placeOfService  String? @map("place_of_service") // e.g. "13", "14", "33"
+  clientFirstName String? @map("client_first_name")
+  clientLastName  String? @map("client_last_name")
+  diagnosisCode   String? @map("diagnosis_code") // ICD/Diagnosis code for billing
+
+  // Resident Picture (from resident_fields.json)
+  residentPhoto          String?   @map("resident_photo")
+  residentPhotoVerified  Boolean?  @map("resident_photo_verified")
+  residentPhotoDateTaken DateTime? @map("resident_photo_date_taken") @db.Date
+  residentPhotoNotes     String?   @map("resident_photo_notes")
+
+  // Admission Information
+  admissionDate                      DateTime? @map("admission_date") @db.Date
+  admissionType                      String?   @map("admission_type")
+  // Note: admissionReferralSource removed (replaced by externalFacilityReferringFacility)
+  admissionPreviousLivingArrangement String?   @map("admission_previous_living_arrangement")
+  admissionRoomNumber                String?   @map("admission_room_number")
+  admissionCodeStatus                String?   @map("admission_code_status")
+  admissionStatus                    String?   @map("admission_status") // Active | Discharged | Deceased
+  admissionPoaOnFile                 Boolean?  @map("admission_poa_on_file")
+  admissionPoaType                   String?   @map("admission_poa_type")
+  admissionAgreementSigned           Boolean?  @map("admission_agreement_signed")
+
+  // Emergency Contacts
+  emergencyPrimaryContactName           String?  @map("emergency_primary_contact_name")
+  emergencyPrimaryContactRelationship   String?  @map("emergency_primary_contact_relationship")
+  emergencyPrimaryContactPhone          String?  @map("emergency_primary_contact_phone")
+  emergencyPrimaryContactEmail          String?  @map("emergency_primary_contact_email")
+  emergencySecondaryContactName         String?  @map("emergency_secondary_contact_name")
+  emergencySecondaryContactRelationship String?  @map("emergency_secondary_contact_relationship")
+  emergencySecondaryContactPhone        String?  @map("emergency_secondary_contact_phone")
+  emergencySecondaryContactEmail        String?  @map("emergency_secondary_contact_email")
+  emergencyLegalDecisionMakerName       String?  @map("emergency_legal_decision_maker_name")
+  emergencyAdvancedDirectiveOnFile      Boolean? @map("emergency_advanced_directive_on_file")
+  emergencyPolstOnFile                  Boolean? @map("emergency_polst_on_file")
+  emergencyGuardianAppointed            Boolean? @map("emergency_guardian_appointed")
+  emergencyCourtOrdersRestrictions      Boolean? @map("emergency_court_orders_restrictions")
+  emergencyPoaOnFile                    Boolean? @map("emergency_poa_on_file")
+  emergencyPoaType                      String?  @map("emergency_poa_type") // Medical | Financial | Both
+  emergencyCodeStatus                   String?  @map("emergency_code_status") // Full Code | DNR | DNI
+
+  // Medical Information
+  medicalPrimaryDiagnosis   String? @map("medical_primary_diagnosis")
+  medicalSecondaryDiagnoses Json?   @map("medical_secondary_diagnoses") // Array of strings
+  medicalChronicConditions  String? @map("medical_chronic_conditions")
+
+  // Diagnosis Information (from resident_fields.json)
+  diagnosisPrimaryDiagnosis      String?   @map("diagnosis_primary_diagnosis")
+  diagnosisSecondaryDiagnoses    Json?     @map("diagnosis_secondary_diagnoses") // Array of strings
+  diagnosisChronicConditions     String?   @map("diagnosis_chronic_conditions")
+  diagnosisCognitiveStatus       String?   @map("diagnosis_cognitive_status")
+  diagnosisDementiaDiagnosis     Boolean?  @map("diagnosis_dementia_diagnosis")
+  diagnosisMentalHealthDiagnoses String?   @map("diagnosis_mental_health_diagnoses")
+  diagnosisBehavioralDiagnoses   String?   @map("diagnosis_behavioral_diagnoses")
+  diagnosisLastReviewDate        DateTime? @map("diagnosis_last_review_date") @db.Date
+  medicalAllergies               String?   @map("medical_allergies")
+  medicalCurrentPharmacy         String?   @map("medical_current_pharmacy")
+
+  // Allergies (from resident_fields.json)
+  allergiesMedicationAllergies    String? @map("allergies_medication_allergies")
+  allergiesFoodAllergies          String? @map("allergies_food_allergies")
+  allergiesEnvironmentalAllergies String? @map("allergies_environmental_allergies")
+  allergiesAllergySeverity        String? @map("allergies_allergy_severity")
+  allergiesReactionNotes          String? @map("allergies_reaction_notes")
+
+  // Care Needs (from resident_fields.json)
+  careNeedsFallRisk               String? @map("care_needs_fall_risk") // Low | Medium | High
+  careNeedsMobilityAidsUsed       String? @map("care_needs_mobility_aids_used")
+  careNeedsSpecialPrecautions     String? @map("care_needs_special_precautions")
+  careNeedsBehavioralTriggers     String? @map("care_needs_behavioral_triggers")
+  medicalPrimaryCareProviderName  String? @map("medical_primary_care_provider_name")
+  medicalPrimaryCareProviderPhone String? @map("medical_primary_care_provider_phone")
+  medicalPrimaryCareClinic        String? @map("medical_primary_care_clinic")
+  medicalSpecialistProviders      String? @map("medical_specialist_providers")
+
+  // Care Providers (from resident_fields.json)
+  careProviderPrimaryCareFax         String?  @map("care_provider_primary_care_fax")
+  careProviderSpecialistCardiology   String?  @map("care_provider_specialist_cardiology")
+  careProviderSpecialistNeurology    String?  @map("care_provider_specialist_neurology")
+  careProviderSpecialistPsychiatry   String?  @map("care_provider_specialist_psychiatry")
+  careProviderSpecialistOther        String?  @map("care_provider_specialist_other")
+  careProviderCaseManagerName        String?  @map("care_provider_case_manager_name")
+  careProviderCaseManagerAgency      String?  @map("care_provider_case_manager_agency")
+  careProviderCaseManagerPhone       String?  @map("care_provider_case_manager_phone")
+  careProviderBehavioralHealthName   String?  @map("care_provider_behavioral_health_name")
+  careProviderBehavioralHealthPhone  String?  @map("care_provider_behavioral_health_phone")
+  medicalRecentHospitalization90Days Boolean? @map("medical_recent_hospitalization_90_days")
+
+  // Pharmacy (from resident_fields.json)
+  pharmacyName             String? @map("pharmacy_name")
+  pharmacyAddress          String? @map("pharmacy_address")
+  pharmacyPhone            String? @map("pharmacy_phone")
+  pharmacyFax              String? @map("pharmacy_fax")
+  pharmacyAccountNumber    String? @map("pharmacy_account_number")
+  pharmacyDeliverySchedule String? @map("pharmacy_delivery_schedule")
+  pharmacyNotes            String? @map("pharmacy_notes")
+
+  // External Facilities (from resident_fields.json)
+  externalFacilityPreviousLiving     String? @map("external_facility_previous_living")
+  externalFacilityReferringFacility  String? @map("external_facility_referring_facility")
+  externalFacilityHospitalErMostUsed String? @map("external_facility_hospital_er_most_used")
+  externalFacilitySkilledNursing     String? @map("external_facility_skilled_nursing")
+  externalFacilityDialysisCenter     String? @map("external_facility_dialysis_center")
+  externalFacilityOther              String? @map("external_facility_other")
+
+  // Insurance Information
+  insurancePrimaryPayer             String?   @map("insurance_primary_payer")
+  insuranceCarrier                  String?   @map("insurance_carrier")
+  insurancePolicyMemberNumber       String?   @map("insurance_policy_member_number")
+  insuranceAuthorizationClaimNumber String?   @map("insurance_authorization_claim_number")
+  insuranceAuthorizationStartDate   DateTime? @map("insurance_authorization_start_date") @db.Date
+  insuranceAuthorizationEndDate     DateTime? @map("insurance_authorization_end_date") @db.Date
+  insuranceDailyRateOrHours         Decimal?  @map("insurance_daily_rate_or_hours") @db.Decimal(10, 2)
+  insuranceResponsiblePartyPayment  String?   @map("insurance_responsible_party_payment")
+
+  // Payer Information (from resident_fields.json)
+  payerSecondaryPayer        String?  @map("payer_secondary_payer")
+  payerApprovedTierDailyRate String?  @map("payer_approved_tier_daily_rate")
+  payerApprovedHours         Decimal? @map("payer_approved_hours") @db.Decimal(10, 2)
+  payerBillingNotes          String?  @map("payer_billing_notes")
+
+  // Note: Preventive Care section removed (10 fields) - not in new requirements
+  // Note: Functional Information section removed (3 fields) - replaced by care_needs_* fields
+  // Note: Medication Information section removed (6 fields) - not in new requirements
+  // Note: Diet Information section removed (5 fields) - diet_food_allergies migrated to allergies_food_allergies
+  // Note: Skin Information section removed (5 fields) - not in new requirements
+  // Note: Mental Health Information section removed (4 fields) - mental_health_diagnoses replaced by diagnosis_mental_health_diagnoses
+  // Note: End of Life Information section removed (4 fields) - not in new requirements
+  // Note: Compliance Information section removed (5 fields) - not in new requirements
+
+  // New schema fields (from updated_resident_fields.json)
+  residentIdentificationFullLegalName     String?   @map("resident_identification_full_legal_name")
+  residentIdentificationProfilePicture   String?   @map("resident_identification_profile_picture")
+  residentIdentificationPreferredName    String?   @map("resident_identification_preferred_name")
+  residentIdentificationDateOfBirth      DateTime? @map("resident_identification_date_of_birth") @db.Date
+  residentIdentificationGender           String?   @map("resident_identification_gender")
+  residentIdentificationSsn              String?   @map("resident_identification_ssn")
+  residentIdentificationAdmissionDate    DateTime? @map("resident_identification_admission_date") @db.Date
+  residentIdentificationRoomNumber       String?   @map("resident_identification_room_number")
+  residentIdentificationResidentStatus   String?   @map("resident_identification_resident_status")
+  emergencyLegalContactsPrimaryContactName String? @map("emergency_legal_contacts_primary_contact_name")
+  emergencyLegalContactsPrimaryContactRelationship String? @map("emergency_legal_contacts_primary_contact_relationship")
+  emergencyLegalContactsPrimaryContactPhone String? @map("emergency_legal_contacts_primary_contact_phone")
+  emergencyLegalContactsSecondaryContactName String? @map("emergency_legal_contacts_secondary_contact_name")
+  emergencyLegalContactsSecondaryContactPhone String? @map("emergency_legal_contacts_secondary_contact_phone")
+  emergencyLegalContactsGuardianPoaExists Boolean? @map("emergency_legal_contacts_legal_guardian_poa_exists")
+  emergencyLegalContactsGuardianPoaName   String?   @map("emergency_legal_contacts_legal_guardian_poa_name")
+  emergencyLegalContactsGuardianPoaContactInfo String? @map("emergency_legal_contacts_legal_guardian_poa_contact_info") @db.Text
+  emergencyLegalContactsGuardianPoaCopyOnFile Boolean? @map("emergency_legal_contacts_legal_guardian_poa_copy_on_file")
+  medicalProvidersPrimaryCareProviderName String? @map("medical_providers_health_coverage_primary_care_provider_name")
+  medicalProvidersPrimaryCareProviderPhone String? @map("medical_providers_health_coverage_primary_care_provider_phone")
+  medicalProvidersMentalHealthProvider   String?   @map("medical_providers_health_coverage_mental_health_provider")
+  medicalProvidersPreferredHospitalEr    String?   @map("medical_providers_health_coverage_preferred_hospital_er")
+  medicalProvidersPharmacyName           String?   @map("medical_providers_health_coverage_pharmacy_name")
+  medicalProvidersPharmacyPhone          String?   @map("medical_providers_health_coverage_pharmacy_phone")
+  medicalProvidersHealthInsurancePayorType String?  @map("medical_providers_health_coverage_health_insurance_payor_type")
+  medicalProvidersHealthInsuranceMedicaidClientId String? @map("medical_providers_health_coverage_health_insurance_medicaid_client_id")
+  medicalProvidersHealthInsuranceAuthorizedTier Boolean? @map("medical_providers_health_coverage_health_insurance_authorized_tier")
+  diagnosesHealthConditionsDiagnoses     String?   @map("diagnoses_health_conditions_diagnoses")
+  diagnosesHealthConditionsCommunicableDiseases String? @map("diagnoses_health_conditions_communicable_diseases")
+  diagnosesHealthConditionsAllergies     String?   @map("diagnoses_health_conditions_allergies") @db.Text
+  functionalStatusAdlsMobilityStatus     String?   @map("functional_status_adls_mobility_status")
+  functionalStatusAdlsBathingAssistance  String?   @map("functional_status_adls_bathing_assistance")
+  functionalStatusAdlsDressingAssistance String?   @map("functional_status_adls_dressing_assistance")
+  functionalStatusAdlsToiletingStatus    Json?     @map("functional_status_adls_toileting_status")
+  functionalStatusAdlsEatingFeedingAssistance String? @map("functional_status_adls_eating_feeding_assistance")
+  functionalStatusAdlsCommunicationAbility String? @map("functional_status_adls_communication_ability")
+  functionalStatusAdlsCognitiveStatus   String?   @map("functional_status_adls_cognitive_status")
+  functionalStatusAdlsRequiresCueingForAdls Boolean? @map("functional_status_adls_requires_cueing_for_adls")
+  servicePlanNcpOnFile                   Boolean?  @map("service_plan_ncp_on_file")
+  servicePlanNcpMostRecentDate           DateTime? @map("service_plan_ncp_most_recent_date") @db.Date
+  servicePlanNcpServicesAuthorized       String?   @map("service_plan_ncp_services_authorized")
+  medicationsTreatmentsTreatmentOrders   Json?     @map("medications_treatments_treatment_orders")
+  medicationsTreatmentsTreatmentOrdersOtherNotes String? @map("medications_treatments_treatment_orders_other_notes") @db.Text
+  behavioralSafetyRisksBehavioralConcerns Json?    @map("behavioral_safety_risks_behavioral_concerns")
+  behavioralSafetyRisksBehavioralConcernsOtherNotes String? @map("behavioral_safety_risks_behavioral_concerns_other_notes") @db.Text
+  behavioralSafetyRisksKnownTriggers     Json?     @map("behavioral_safety_risks_known_triggers")
+  behavioralSafetyRisksKnownTriggersOtherNotes String? @map("behavioral_safety_risks_known_triggers_other_notes") @db.Text
+  behavioralSafetyRisksDeEscalationTechniques Json? @map("behavioral_safety_risks_de_escalation_techniques")
+  behavioralSafetyRisksDeEscalationOtherNotes String? @map("behavioral_safety_risks_de_escalation_other_notes") @db.Text
+  behavioralSafetyRisksFallRisk          String?   @map("behavioral_safety_risks_fall_risk")
+  behavioralSafetyRisksElopementRisk     String?   @map("behavioral_safety_risks_elopement_risk")
+  dietNutritionPrescribedDietType        Json?     @map("diet_nutrition_prescribed_diet_type")
+  dietNutritionPrescribedDietOtherNotes  String?   @map("diet_nutrition_prescribed_diet_other_notes") @db.Text
+  dietNutritionFluidRestrictions         String?   @map("diet_nutrition_fluid_restrictions")
+  dietNutritionFluidRestrictionsOtherNotes String? @map("diet_nutrition_fluid_restrictions_other_notes") @db.Text
+  dietNutritionFoodAllergies             Json?     @map("diet_nutrition_food_allergies")
+  dietNutritionFoodAllergiesOtherNotes   String?   @map("diet_nutrition_food_allergies_other_notes") @db.Text
+  dietNutritionWeightMonitoringRequired  String?   @map("diet_nutrition_weight_monitoring_required")
+  codeStatusAdvanceDirectivesCodeStatus  String?   @map("code_status_advance_directives_code_status")
+  codeStatusAdvanceDirectivesPolstOnFile String?   @map("code_status_advance_directives_polst_on_file")
+  codeStatusAdvanceDirectivesAdvanceDirectiveOnFile String? @map("code_status_advance_directives_advance_directive_on_file")
+  financialCaseManagementCaseManagerName String?   @map("financial_case_management_case_manager_name")
+  financialCaseManagementCaseManagerPhone String?  @map("financial_case_management_case_manager_phone")
+  financialCaseManagementCaseManagerEmail String?  @map("financial_case_management_case_manager_email")
+  financialCaseManagementAuthorizationStartDate DateTime? @map("financial_case_management_authorization_start_date") @db.Date
+  financialCaseManagementAuthorizationEndDate DateTime? @map("financial_case_management_authorization_end_date") @db.Date
+
+  // E-Signature (admission/agreement signature stored in S3)
+  eSignatureUrl       String?   @map("e_signature_url")
+  eSignatureS3Key      String?   @map("e_signature_s3_key")
+  eSignatureSignedAt  DateTime? @map("e_signature_signed_at")
+  eSignatureLegalText String?   @map("e_signature_legal_text") @db.Text
+
+  ncpExtractions NcpExtraction[]
+  visitorLogs    VisitorLog[]
+  folders       ResidentFolder[]
+  documents     ResidentDocument[]
+  appointments  Appointment[]
+
+  @@index([tenantId])
+  @@index([userId])
+  @@index([tenantId, createdAt])
+  @@index([residentFullLegalName])
+  @@index([deletedAt])
+  @@map("residents")
+}
+
+// Resident document folder system
+model ResidentFolder {
+  id           String   @id @default(uuid())
+  residentId   String
+  resident     Resident @relation(fields: [residentId], references: [id], onDelete: Cascade)
+  parentId     String?
+  parent       ResidentFolder?  @relation("ResidentFolderHierarchy", fields: [parentId], references: [id], onDelete: Cascade)
+  children     ResidentFolder[] @relation("ResidentFolderHierarchy")
+  name         String
+  allowedRoles Json?   // ["ADMIN", "STAFF"] or null = visible to all roles
+  size         FolderSize @default(MEDIUM)
+  color        String?    // e.g. hex #rrggbb or preset name for easier identification
+  passwordHash String?    // bcrypt hash; never returned in API
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+
+  documents ResidentDocument[]
+
+  @@index([residentId])
+  @@index([parentId])
+  @@map("resident_folders")
+}
+
+enum ResidentDocumentCategory {
+  LEGAL
+  MEDICAL
+  EXTERNAL_REPORT
+  OTHER
+}
+
+model ResidentDocument {
+  id          String                    @id @default(uuid())
+  residentId  String
+  resident    Resident                  @relation(fields: [residentId], references: [id], onDelete: Cascade)
+  folderId    String?
+  folder      ResidentFolder?           @relation(fields: [folderId], references: [id], onDelete: SetNull)
+  category    ResidentDocumentCategory?
+  tags        String[]                  @default([])
+  isPinned    Boolean                   @default(false)
+  fileName    String
+  s3Key       String
+  s3Url       String
+  fileSize    Int?
+  mimeType    String?
+  uploadedBy  String?
+  createdAt   DateTime                 @default(now())
+  updatedAt   DateTime                 @updatedAt
+
+  @@index([residentId])
+  @@index([folderId])
+  @@index([category])
+  @@index([isPinned])
+  @@map("resident_documents")
+}
+
+// Note Versions - Immutable edit history for notes (full snapshots)
+model NoteVersion {
+  id           String   @id @default(uuid())
+  noteId       String
+  note         Note     @relation(fields: [noteId], references: [id], onDelete: Cascade)
+  version      Int // Version number (0 = creation, 1, 2, 3... = edits)
+  residentId   String // Full note snapshot: Resident.id (UUID)
+  residentName String? // Full note snapshot: resident name
+  staffId      String? // Full note snapshot: staff who created this version (null if user deleted)
+  staff        User?    @relation("NoteVersionStaff", fields: [staffId], references: [id], onDelete: SetNull)
+  tenantId     String // Full note snapshot: tenant ID
+  type         NoteType // Full note snapshot: note type
+  description  String   @db.Text // Full note snapshot: description at this version
+  createdBy    String? // User who created this version (null if user deleted)
+  creator      User?    @relation("NoteVersionCreator", fields: [createdBy], references: [id], onDelete: SetNull)
+  createdAt    DateTime @default(now()) // When this version was created
+
+  @@unique([noteId, version]) // Ensure one version per number per note
+  @@index([noteId])
+  @@index([noteId, version])
+  @@index([createdBy])
+  @@index([createdAt])
+  @@map("note_versions")
+}
+
+// Billing Tiers - Care level pricing tiers
+model BillingTier {
+  id          String   @id @default(uuid())
+  tenantId    String
+  tenant      Tenant   @relation(fields: [tenantId], references: [id], onDelete: Cascade)
+  name        String // e.g., "Tier 1", "Basic ADL Support"
+  description String? // Notes about tier care level
+  monthlyRate Decimal  @db.Decimal(10, 2) // Monthly cost
+  isActive    Boolean  @default(true)
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  residentBillings ResidentBilling[]
+  invoices         Invoice[]
+
+  @@index([tenantId])
+  @@index([tenantId, isActive])
+  @@map("billing_tiers")
+}
+
+// Resident Billing Mapping - Links residents to billing tiers
+model ResidentBilling {
+  id            String      @id @default(uuid())
+  tenantId      String
+  tenant        Tenant      @relation(fields: [tenantId], references: [id], onDelete: Cascade)
+  residentId    String // Resident.id (UUID)
+  residentName  String? // Cached resident name for display
+  billingTierId String
+  billingTier   BillingTier @relation(fields: [billingTierId], references: [id], onDelete: Restrict)
+  startDate     DateTime // When billing tier assignment started
+  endDate       DateTime? // Optional: when billing tier assignment ended
+  isActive      Boolean     @default(true) // Current active tier
+  createdAt     DateTime    @default(now())
+  updatedAt     DateTime    @updatedAt
+  createdBy     String? // User ID who assigned tier
+
+  invoices Invoice[]
+
+  @@unique([tenantId, residentId, isActive]) // Only one active tier per resident
+  @@index([tenantId])
+  @@index([residentId])
+  @@index([billingTierId])
+  @@index([tenantId, residentId])
+  @@index([isActive])
+  @@map("resident_billing")
+}
+
+// Invoices - Monthly billing invoices
+model Invoice {
+  id                String           @id @default(uuid())
+  tenantId          String
+  tenant            Tenant           @relation(fields: [tenantId], references: [id], onDelete: Cascade)
+  invoiceNumber     String           @unique // Auto-generated: INV-2025-01-{sequence}
+  residentId        String // Resident.id (UUID)
+  residentName      String? // Cached resident name
+  residentBillingId String? // Reference to resident billing record
+  residentBilling   ResidentBilling? @relation(fields: [residentBillingId], references: [id], onDelete: SetNull)
+  billingTierId     String
+  billingTier       BillingTier      @relation(fields: [billingTierId], references: [id], onDelete: Restrict)
+  amount            Decimal          @db.Decimal(10, 2) // Based on tier monthly rate
+  month             DateTime // Billing period (first day of month)
+  status            InvoiceStatus    @default(Pending)
+  dueDate           DateTime? // Optional: calculated based on month
+  generatedBy       String? // "System" or user ID
+  paidAt            DateTime? // When marked as paid
+  paidBy            String? // User ID who marked as paid
+  notes             String? // Additional notes
+  createdAt         DateTime         @default(now())
+  updatedAt         DateTime         @updatedAt
+
+  @@unique([tenantId, residentId, month]) // One invoice per resident per month
+  @@index([tenantId])
+  @@index([residentId])
+  @@index([billingTierId])
+  @@index([status])
+  @@index([month])
+  @@index([tenantId, month])
+  @@index([tenantId, status])
+  @@map("invoices")
+}
+
+// Enum for invoice status
+enum InvoiceStatus {
+  Pending
+  Paid
+  Overdue
+}
+
+// ============================================
+// Healthcare Claims Billing Models
+// ============================================
+
+// Billing status for claims billing records (system-only; not exported to Excel)
+enum ClaimsBillingStatus {
+  PENDING  // Unpaid
+  PAID     // Fully paid
+  PARTIAL  // Partially paid
+  OVERDUE  // Past due, unpaid
+}
+
+// Claims Billing Record - Main billing record table for healthcare claims
+model ClaimsBillingRecord {
+  id             String   @id @default(uuid())
+  tenantId       String
+  residentId     String // Resident.id (UUID)
+  billingMonth   DateTime // First day of billing month
+  rowIndex       Int // Excel row index (1-based, excluding header)
+  excelSheetName String // Resident sheet name
+
+  // Billing status (system-only; not in Excel export)
+  billingStatus ClaimsBillingStatus @default(PENDING)
+  paidAmount    Decimal?             @db.Decimal(10, 2)
+  paidAt        DateTime?
+
+  // Provider Fields
+  providerName            String?
+  providerId              String?
+  tinSsnEin               String?
+  billingProviderNpi      String?
+  billingProviderTaxonomy String?
+  billingProviderStreet   String?
+  billingProviderCity     String?
+  billingProviderState    String?
+  billingProviderZip      String?
+
+  // Service Fields
+  tierId            String? // Reference to ClaimsBillingTier
+  tierUnitCost      Decimal? @db.Decimal(10, 2)
+  serviceCode       String?
+  modifier1         String?
+  modifier2         String?
+  units             Int?
+  claimBilledAmount Decimal? @db.Decimal(10, 2)
+
+  // Client Fields
+  clientAddress   String?
+  clientCity      String?
+  clientState     String?
+  clientZip       String?
+  placeOfService  String?
+  clientId        String?
+  clientLastName  String?
+  clientFirstName String?
+  clientGender    String?
+  clientDob       DateTime?
+  diagnosisCode   String?
+
+  // Service Dates
+  serviceFromDate DateTime?
+  serviceToDate   DateTime?
+
+  // MCO Fields (empty by default)
+  originalClaimId String?
+  frequencyCode   String?
+
+  // Metadata
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  createdBy String?
+  updatedBy String?
+
+  tenant Tenant             @relation(fields: [tenantId], references: [id], onDelete: Cascade)
+  tier   ClaimsBillingTier? @relation(fields: [tierId], references: [id], onDelete: SetNull)
+
+  @@unique([tenantId, residentId, billingMonth])
+  @@index([tenantId])
+  @@index([residentId])
+  @@index([billingMonth])
+  @@index([tenantId, residentId])
+  @@index([tierId])
+  @@index([billingStatus])
+  @@map("claims_billing_records")
+}
+
+// Claims Billing Tier - Tier configuration for healthcare claims billing
+model ClaimsBillingTier {
+  id          String   @id @default(uuid())
+  tenantId    String
+  tierNumber  Int // 1-6 (same for Regular and ILOS)
+  isILOS      Boolean  @default(false) // Distinguishes Regular vs ILOS tiers
+  name        String // "Tier 1" or "ILOS T1"
+  unitCost    Decimal  @db.Decimal(10, 2) // Daily rate
+  modifier1   String? // Regular: "-", "TF", "HE", "TG", "HK", "HI" | ILOS T1: "SE" | ILOS T2-6: same as Regular
+  modifier2   String? // Regular: (Blank) | ILOS T1: (Blank) | ILOS T2-6: "SE"
+  serviceCode String   @default("S5126")
+  isActive    Boolean  @default(true)
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  tenant   Tenant                @relation(fields: [tenantId], references: [id], onDelete: Cascade)
+  records  ClaimsBillingRecord[]
+  residents Resident[] // Residents with this as default tier
+
+  @@unique([tenantId, tierNumber, isILOS]) // Allow both Regular and ILOS for same tier number
+  @@index([tenantId])
+  @@index([tenantId, isILOS])
+  @@index([tenantId, isActive])
+  @@map("claims_billing_tiers")
+}
+
+// Claims Provider Settings - Provider information per tenant
+model ClaimsProviderSettings {
+  id                      String   @id @default(uuid())
+  tenantId                String   @unique
+  providerName            String
+  providerId              String?
+  tinSsnEin               String
+  billingProviderNpi      String
+  billingProviderTaxonomy String
+  billingProviderStreet   String
+  billingProviderCity     String
+  billingProviderState    String
+  billingProviderZip      String
+  createdAt               DateTime @default(now())
+  updatedAt               DateTime @updatedAt
+
+  tenant Tenant @relation(fields: [tenantId], references: [id], onDelete: Cascade)
+
+  @@map("claims_provider_settings")
+}
+
+// ============================================
+// Role & Permission Engine
+// ============================================
+
+model Permission {
+  id        String   @id @default(uuid())
+  module    String   // e.g. RESIDENTS, EMAR, BILLING, ADMINISTRATION
+  action    String   // e.g. view, create, update, delete, export
+  name      String?  // Human-readable label
+  createdAt DateTime @default(now())
+
+  rolePermissions RolePermission[]
+
+  @@unique([module, action])
+  @@index([module])
+  @@map("permissions")
+}
+
+model CustomRole {
+  id               String   @id @default(uuid())
+  tenantId         String?  // Null for system templates (global)
+  tenant           Tenant?  @relation(fields: [tenantId], references: [id], onDelete: Cascade)
+  name             String
+  description      String?  @db.Text
+  isSystemTemplate Boolean  @default(false)
+  isActive         Boolean  @default(true)
+  createdAt        DateTime @default(now())
+  updatedAt        DateTime @updatedAt
+
+  rolePermissions     RolePermission[]
+  userRoleAssignments UserRoleAssignment[]
+
+  @@unique([tenantId, name])
+  @@index([tenantId])
+  @@index([isSystemTemplate])
+  @@map("roles")
+}
+
+model RolePermission {
+  id           String     @id @default(uuid())
+  roleId       String
+  role         CustomRole @relation(fields: [roleId], references: [id], onDelete: Cascade)
+  permissionId String
+  permission   Permission @relation(fields: [permissionId], references: [id], onDelete: Cascade)
+  createdAt    DateTime   @default(now())
+
+  @@unique([roleId, permissionId])
+  @@index([roleId])
+  @@index([permissionId])
+  @@map("role_permissions")
+}
+
+model UserRoleAssignment {
+  id        String   @id @default(uuid())
+  userId    String
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  roleId    String
+  role      CustomRole @relation(fields: [roleId], references: [id], onDelete: Cascade)
+  tenantId  String   // Denormalized for quick filtering
+  isPrimary Boolean  @default(false)
+  assignedAt DateTime @default(now())
+  assignedBy String?  // User ID who assigned
+
+  @@unique([userId, roleId])
+  @@index([userId])
+  @@index([roleId])
+  @@index([tenantId])
+  @@map("user_role_assignments")
+}
+
+// Audit Log - Immutable audit trail for all system actions
+model AuditLog {
+  id           String      @id @default(uuid())
+  userId       String? // Null for unauthenticated actions
+  userName     String? // Name of user performing action
+  userEmail    String? // Email of user performing action
+  userRole     String? // Role of user performing action
+  tenantId     String? // Null for system-wide actions
+  action       AuditAction // Type of action performed
+  resource     String // Resource affected (e.g., "user", "tenant", "form")
+  resourceId   String? // ID of the affected resource
+  description  String? // Human-readable log message
+  method       String? // HTTP method (GET, POST, PUT, DELETE)
+  endpoint     String? // API endpoint called
+  statusCode   Int? // HTTP status code
+  ipAddress    String? // IP address of the requester
+  /// Human-readable location from IP_GEOLOCATION_KEY (ipgeolocation.io), e.g. "City, State, Country"
+  ipGeoSummary String?  @map("ip_geo_summary") @db.VarChar(512)
+  userAgent    String? // User agent string
+  requestData  Json? // Sanitized request payload (sensitive data removed)
+  responseData Json? // Sanitized response data (for important actions)
+  errorMessage String? // Error message if action failed
+  duration     Int? // Request duration in milliseconds
+  metadata     Json? // Additional metadata
+  createdAt    DateTime    @default(now())
+
+  @@index([userId])
+  @@index([userEmail])
+  @@index([tenantId])
+  @@index([action])
+  @@index([resource])
+  @@index([createdAt])
+  @@index([userId, createdAt])
+  @@index([tenantId, createdAt])
+  @@map("audit_logs")
+}
+
+// ============================================
+// eMAR (Electronic Medication Administration Record) Models
+// ============================================
+
+// Medication - Master medication list per resident
+model Medication {
+  id         String @id @default(uuid())
+  residentId String // Resident.id (UUID)
+  tenantId   String
+  tenant     Tenant @relation(fields: [tenantId], references: [id], onDelete: Cascade)
+
+  // Medication Details
+  name        String // Medication name (e.g., "Metformin")
+  dosage      String // Dosage (e.g., "500mg")
+  route       MedicationRoute // Oral, IM, Topical, Eye, Ear
+  frequency   String // Frequency description (e.g., "Twice daily", "8AM, 12PM, 4PM, 8PM")
+  timesPerDay Int? // Number of times per day (for scheduling)
+  timeSlots   Json? // Array of time slots ["08:00", "12:00", "16:00", "20:00"]
+
+  // Dates & Status
+  startDate DateTime
+  endDate   DateTime?
+  isActive  Boolean   @default(true)
+  isPrn     Boolean   @default(false) // PRN (as needed) medication
+
+  // Special Requirements
+  requiresVitals Boolean @default(false) // Must record vitals before dose
+  vitalsType     String? // "Temperature", "BloodPressure", "Pulse", "All"
+
+  // Prescriber & Pharmacy
+  prescriberName  String?
+  prescriberPhone String?
+  pharmacyName    String?
+  pharmacyPhone   String?
+
+  // Instructions & Attachments
+  specialInstructions String? @db.Text
+  prescriptionPdfUrl  String? // S3 URL for prescription PDF
+  prescriptionS3Key   String? // S3 key for prescription PDF
+
+  // Metadata
+  createdBy String? // User ID who added medication
+  createdAt DateTime  @default(now())
+  updatedAt DateTime  @updatedAt
+  deletedAt DateTime? // Soft delete
+
+  // Relations
+  schedules     MedicationSchedule[]
+  marRecords    MarRecord[]
+  prnRecords    PrnRecord[]
+  prescriptions MedicationPrescription[]
+
+  @@index([residentId])
+  @@index([tenantId])
+  @@index([tenantId, residentId])
+  @@index([tenantId, residentId, isActive])
+  @@index([isActive])
+  @@map("medications")
+}
+
+enum MedicationRoute {
+  Oral
+  IM // Intramuscular
+  IV // Intravenous
+  Topical
+  Eye
+  Ear
+  Sublingual
+  Nasal
+  Other
+}
+
+// MedicationSchedule - Auto-generated scheduled doses
+model MedicationSchedule {
+  id           String     @id @default(uuid())
+  medicationId String
+  medication   Medication @relation(fields: [medicationId], references: [id], onDelete: Cascade)
+  residentId   String
+  tenantId     String
+  tenant       Tenant     @relation(fields: [tenantId], references: [id], onDelete: Cascade)
+
+  // Schedule Details
+  scheduledDate DateTime // Date for this dose
+  scheduledTime DateTime // Full datetime for scheduled dose
+  timeSlot      String // Time slot label (e.g., "8AM", "12PM")
+
+  // Status
+  status        ScheduleStatus @default(Pending)
+  isMissed      Boolean        @default(false)
+  isLate        Boolean        @default(false)
+  lateThreshold Int? // Minutes after scheduled time to mark as late (default: 120)
+
+  // Metadata
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  // Relations
+  marRecord MarRecord? @relation("ScheduleMarRecord") // Link to actual administration record
+
+  @@unique([medicationId, scheduledTime]) // One schedule per medication per time
+  @@index([residentId])
+  @@index([tenantId])
+  @@index([tenantId, residentId])
+  @@index([scheduledDate])
+  @@index([scheduledTime])
+  @@index([status])
+  @@index([tenantId, scheduledDate])
+  @@map("medication_schedules")
+}
+
+enum ScheduleStatus {
+  Pending // Not yet due
+  Given // Administered
+  Missed // Missed dose
+  Late // Given late
+  Skipped // Intentionally skipped
+  Hold // On hold
+}
+
+// MarRecord - Individual dose administration record
+model MarRecord {
+  id           String              @id @default(uuid())
+  medicationId String
+  medication   Medication          @relation(fields: [medicationId], references: [id], onDelete: Restrict)
+  scheduleId   String?             @unique // Link to scheduled dose (if scheduled) - one-to-one
+  schedule     MedicationSchedule? @relation("ScheduleMarRecord", fields: [scheduleId], references: [id], onDelete: SetNull)
+  residentId   String
+  tenantId     String
+  tenant       Tenant              @relation(fields: [tenantId], references: [id], onDelete: Cascade)
+
+  // Administration Details
+  administeredAt DateTime // When medication was given
+  scheduledTime  DateTime // Original scheduled time
+  status         MarStatus // Given, Missed, Late
+
+  // Caregiver Information
+  caregiverId       String? // User ID who administered (null if user deleted)
+  caregiver         User?   @relation("MarRecordCaregiver", fields: [caregiverId], references: [id], onDelete: SetNull)
+  caregiverName     String? // Cached caregiver name
+  caregiverInitials String? // Caregiver initials for MAR grid
+  signature         String? // Digital signature (base64 or S3 URL)
+  signatureType     String? // "drawing", "typed", "stored"
+
+  // Notes & Observations
+  notes            String? @db.Text
+  residentResponse String? @db.Text // How resident responded
+
+  // Status Reason Fields
+  notGivenReason String? @db.Text // Reason when status is NotGiven (e.g., "out of stock", "held due to vitals")
+  refusedReason  String? @db.Text // Reason when status is Refused (e.g., "refused by resident")
+
+  // Vitals (if required)
+  vitalsId String?    @unique // Link to vitals record (one-to-one)
+  vitals   VitalSign? @relation("MarRecordVitals", fields: [vitalsId], references: [id], onDelete: SetNull)
+
+  // Edit Lock (24-hour rule)
+  isLocked Boolean   @default(false)
+  lockedAt DateTime? // When record was locked (24 hours after administeredAt)
+  canEdit  Boolean   @default(true) // Admin override flag
+
+  // Metadata
+  createdBy String // User ID who created record
+  createdAt DateTime  @default(now())
+  updatedAt DateTime  @updatedAt
+  editedAt  DateTime? // Last edit time
+  editedBy  String? // Last editor user ID
+
+  @@index([residentId])
+  @@index([tenantId])
+  @@index([medicationId])
+  @@index([caregiverId])
+  @@index([administeredAt])
+  @@index([tenantId, residentId])
+  @@index([tenantId, residentId, administeredAt])
+  @@index([scheduleId])
+  @@map("mar_records")
+}
+
+enum MarStatus {
+  Given
+  NotGiven
+  Refused
+  Missed // Legacy - will be mapped to NotGiven
+  Late // Legacy - will be mapped to Given
+  Skipped // Legacy - will be mapped to NotGiven
+  Hold // Legacy - will be mapped to NotGiven
+}
+
+// PrnRecord - PRN (as needed) medication log
+model PrnRecord {
+  id           String     @id @default(uuid())
+  medicationId String
+  medication   Medication @relation(fields: [medicationId], references: [id], onDelete: Restrict)
+  residentId   String
+  tenantId     String
+  tenant       Tenant     @relation(fields: [tenantId], references: [id], onDelete: Cascade)
+
+  // PRN Workflow
+  whyGiven          String   @db.Text // Why the PRN was given (reason for administration)
+  symptomsNoted     String?  @db.Text // Symptoms noted at time of administration
+  symptom           String   @db.Text // Legacy field - kept for backward compatibility (maps to whyGiven)
+  givenAt           DateTime // When medication was given
+  caregiverId       String? // User ID who gave medication (null if user deleted)
+  caregiver         User?    @relation("PrnRecordCaregiver", fields: [caregiverId], references: [id], onDelete: SetNull)
+  caregiverName     String?
+  caregiverInitials String?
+  signature         String? // Digital signature
+
+  // Follow-up (required after 30-60 min)
+  response            String?   @db.Text // Resident response/outcome (effectiveness follow-up)
+  effectiveness       String?   @db.Text // Effectiveness of medication (alternative to response, more structured)
+  responseRecordedAt  DateTime? // When response was recorded
+  physicianNotified   Boolean   @default(false)
+  physicianNotifiedAt DateTime?
+  physicianNotes      String?   @db.Text
+
+  // Vitals (if applicable)
+  vitalsId String?    @unique // Link to vitals record (one-to-one)
+  vitals   VitalSign? @relation("PrnRecordVitals", fields: [vitalsId], references: [id], onDelete: SetNull)
+
+  // Notes
+  notes String? @db.Text
+
+  // Metadata
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  // Relations
+  behavioralLogs BehavioralLog[] @relation("BehavioralLogPrnRecord") // Behavioral logs that reference this PRN record
+
+  @@index([residentId])
+  @@index([tenantId])
+  @@index([medicationId])
+  @@index([caregiverId])
+  @@index([givenAt])
+  @@index([tenantId, residentId])
+  @@index([tenantId, residentId, givenAt])
+  @@map("prn_records")
+}
+
+// VitalSign - Vitals tracking (linked to medications/records)
+model VitalSign {
+  id         String @id @default(uuid())
+  residentId String
+  tenantId   String
+  tenant     Tenant @relation(fields: [tenantId], references: [id], onDelete: Cascade)
+
+  // Vital Signs
+  bloodPressureSystolic  Int? // Systolic BP
+  bloodPressureDiastolic Int? // Diastolic BP
+  pulse                  Int? // Pulse rate
+  temperature            Decimal? @db.Decimal(4, 1) // Temperature (Fahrenheit)
+  temperatureUnit        String?  @default("F") // "F" or "C"
+  oxygenSaturation       Int? // O2 Sat (%)
+  weight                 Decimal? @db.Decimal(5, 2) // Weight (lbs)
+  weightUnit             String?  @default("lbs")
+
+  // Context
+  recordedAt     DateTime // When vitals were taken
+  recordedBy     String? // User ID who recorded (null if user deleted)
+  recorder       User?    @relation("VitalSignRecorder", fields: [recordedBy], references: [id], onDelete: SetNull)
+  recordedByName String?
+
+  // Links
+  medicationId String? // If linked to specific medication (reference only, not a relation)
+
+  // Notes
+  notes String? @db.Text
+
+  // Metadata
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  // Relations (back-references from MarRecord and PrnRecord)
+  marRecord MarRecord? @relation("MarRecordVitals")
+  prnRecord PrnRecord? @relation("PrnRecordVitals")
+
+  @@index([residentId])
+  @@index([tenantId])
+  @@index([recordedAt])
+  @@index([tenantId, residentId])
+  @@index([tenantId, residentId, recordedAt])
+  @@index([medicationId])
+  @@map("vital_signs")
+}
+
+// MedicationPrescription - Prescription PDF attachments
+model MedicationPrescription {
+  id           String     @id @default(uuid())
+  medicationId String
+  medication   Medication @relation(fields: [medicationId], references: [id], onDelete: Cascade)
+  tenantId     String
+  tenant       Tenant     @relation(fields: [tenantId], references: [id], onDelete: Cascade)
+
+  // File Information
+  fileName String
+  s3Key    String // S3 storage key
+  s3Url    String // S3 URL
+  fileSize Int? // File size in bytes
+  mimeType String? // MIME type (e.g., "application/pdf")
+
+  // Metadata
+  uploadedBy String? // User ID who uploaded
+  uploadedAt DateTime @default(now())
+
+  @@index([medicationId])
+  @@index([tenantId])
+  @@map("medication_prescriptions")
+}
+
+// ============================================
+// CBHS Behavioral Tracking Models
+// ============================================
+
+// Enum for behavior types
+enum BehaviorType {
+  Aggression
+  SelfHarm
+  Withdrawal
+  NonCompliance
+  MoodChanges
+  Anxiety
+  Agitation
+  VerbalAbuse
+  PhysicalAbuse
+  PropertyDamage
+  Wandering
+  InappropriateBehavior
+  Other
+}
+
+// Enum for severity levels
+enum SeverityLevel {
+  Low
+  Moderate
+  High
+}
+
+// Enum for intervention types (stored as array in BehavioralLog)
+enum InterventionType {
+  Redirect
+  Counseling
+  PrnMedication
+  TimeOut
+  DeEscalation
+  EnvironmentalModification
+  StaffSupport
+  FamilyNotification
+  PhysicianNotification
+  EmergencyResponse
+  Other
+}
+
+// BehavioralLog - Daily behavioral incident entries
+model BehavioralLog {
+  id           String  @id @default(uuid())
+  residentId   String // Resident.id (UUID)
+  residentName String? // Cached resident name for display
+  tenantId     String
+  tenant       Tenant  @relation(fields: [tenantId], references: [id], onDelete: Cascade)
+
+  // Behavioral Details
+  dateTime            DateTime // Date and time of behavior
+  duration            String? // Duration of service (e.g., "12 hours", "2 hours 30 minutes")
+  behaviorType        BehaviorType? // Type of behavior (optional)
+  observedBehaviors   Json? // Array of behavior names (string[]) - NEW: Multiple behaviors
+  severity            SeverityLevel // Severity level
+  trigger             String?       @db.Text // Trigger/context (free text)
+  staffNotes          String?       @db.Text // Staff observations and notes
+  residentExplanation String?       @map("resident_explanation") @db.Text // Resident's explanation of the behavior
+  outcome             String?       @db.Text // Outcome of the intervention
+  interventions       Json // Array of InterventionType values applied (required)
+  interventionDetails String?       @db.Text // Additional details about interventions
+  selectedTier        String? // Selected tier (e.g., "Tier 1 (.5-2)", "Tier 2 (2.1-6)", etc.)
+  services            Json? // Array of services for batch records (only populated for batch submissions)
+
+  // Staff Information
+  staffId   String? // User ID who logged the behavior (null if user deleted)
+  staff     User?   @relation("BehavioralLogStaff", fields: [staffId], references: [id], onDelete: SetNull)
+  staffName String? // Cached staff name
+
+  // Link to PRN medication (if PRN med was given)
+  prnRecordId String? // Optional link to PRN record if medication was administered
+  prnRecord   PrnRecord? @relation("BehavioralLogPrnRecord", fields: [prnRecordId], references: [id], onDelete: SetNull)
+
+  // Edit Restrictions (similar to MAR records)
+  isLocked Boolean   @default(false)
+  lockedAt DateTime? // When record was locked (24 hours after dateTime)
+  canEdit  Boolean   @default(true) // Admin override flag
+
+  // Soft Delete
+  deletedAt DateTime? // Soft delete timestamp
+
+  // Metadata
+  createdBy String // User ID who created record
+  createdAt DateTime  @default(now())
+  updatedAt DateTime  @updatedAt
+  editedAt  DateTime? // Last edit time
+  editedBy  String? // Last editor user ID
+
+  @@index([residentId])
+  @@index([tenantId])
+  @@index([staffId])
+  @@index([dateTime])
+  @@index([behaviorType])
+  @@index([severity])
+  @@index([tenantId, residentId])
+  @@index([tenantId, residentId, dateTime])
+  @@index([tenantId, dateTime])
+  @@index([deletedAt])
+  @@map("behavioral_logs")
+}
+
+// AFH / DSHS-aligned incident reports (resident welfare)
+model IncidentReport {
+  id           String  @id @default(uuid())
+  tenantId     String
+  tenant       Tenant  @relation(fields: [tenantId], references: [id], onDelete: Cascade)
+  residentId   String
+  residentName String?
+  occurredAt   DateTime
+  incidentType String
+  status       String  @default("Open")
+  location     String? @db.Text
+
+  /// Extended fields: witness, description, injuries, staff actions, body map, notifications, follow-up, signatures, activity log, outcome summary, etc.
+  payload Json
+
+  staffId   String?
+  staff     User?   @relation("IncidentReportStaff", fields: [staffId], references: [id], onDelete: SetNull)
+  staffName String?
+
+  createdBy String
+  createdAt DateTime  @default(now())
+  updatedAt DateTime  @updatedAt
+  deletedAt DateTime?
+
+  @@index([tenantId])
+  @@index([residentId])
+  @@index([occurredAt])
+  @@index([incidentType])
+  @@index([status])
+  @@index([tenantId, occurredAt])
+  @@index([deletedAt])
+  @@map("incident_reports")
+}
+
+// BehavioralNote - AI-generated narrative notes for behavioral records
+model BehavioralNote {
+  id           String  @id @default(uuid())
+  residentId   String // Resident.id (UUID)
+  residentName String? // Cached resident name
+  tenantId     String
+  tenant       Tenant  @relation(fields: [tenantId], references: [id], onDelete: Cascade)
+
+  // Date Range
+  startDate DateTime // Start date of period covered
+  endDate   DateTime // End date of period covered
+
+  // Narrative Content
+  narrative      String  @db.Text // AI-generated or manually edited narrative
+  isAiGenerated  Boolean @default(true) // Flag to indicate if AI-generated
+  currentVersion Int     @default(0) // Current version number
+
+  // Metadata
+  generatedBy String? // User ID who triggered generation
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
+  deletedAt   DateTime? // Soft delete
+
+  // Version History
+  versions BehavioralNoteVersion[]
+
+  @@index([residentId])
+  @@index([tenantId])
+  @@index([startDate])
+  @@index([endDate])
+  @@index([tenantId, residentId])
+  @@index([tenantId, residentId, startDate, endDate])
+  @@index([deletedAt])
+  @@map("behavioral_notes")
+}
+
+// BehavioralNoteVersion - Immutable version history for behavioral notes
+model BehavioralNoteVersion {
+  id      String         @id @default(uuid())
+  noteId  String
+  note    BehavioralNote @relation(fields: [noteId], references: [id], onDelete: Cascade)
+  version Int // Version number (0 = creation, 1, 2, 3... = edits)
+
+  // Full snapshot of note at this version
+  residentId    String
+  residentName  String?
+  tenantId      String
+  startDate     DateTime
+  endDate       DateTime
+  narrative     String   @db.Text
+  isAiGenerated Boolean
+
+  // Who created this version
+  createdBy String? // User ID who created/edited this version (null if user deleted)
+  creator   User?    @relation("BehavioralNoteVersionCreator", fields: [createdBy], references: [id], onDelete: SetNull)
+  createdAt DateTime @default(now())
+
+  @@unique([noteId, version]) // Ensure one version per number per note
+  @@index([noteId])
+  @@index([noteId, version])
+  @@index([createdBy])
+  @@index([createdAt])
+  @@map("behavioral_note_versions")
+}
+
+// ============================================
+// Nursing Care Plan (NCP) Models
+// ============================================
+
+// Enum for care plan status
+enum CarePlanStatus {
+  Active
+  Archived
+  Draft
+  PendingReview
+}
+
+// Enum for problem category
+enum ProblemCategory {
+  Medical
+  Behavioral
+  Functional
+  Social
+  Other
+}
+
+// Enum for goal status
+enum GoalStatus {
+  InProgress
+  Achieved
+  NotAchieved
+  Discontinued
+}
+
+// Enum for intervention frequency
+enum InterventionFrequency {
+  Daily
+  TwiceDaily
+  Weekly
+  PRN
+  AsNeeded
+  Custom
+}
+
+// Enum for alert type
+enum AlertType {
+  ReviewDue
+  NewDiagnosis
+  GoalNotMet
+  InterventionOverdue
+}
+
+// CarePlan - Master care plan record per resident
+model CarePlan {
+  id           String  @id @default(uuid())
+  residentId   String // Resident.id (UUID)
+  residentName String? // Cached resident name for display
+  tenantId     String
+  tenant       Tenant  @relation(fields: [tenantId], references: [id], onDelete: Cascade)
+
+  // Care Plan Details
+  status      CarePlanStatus @default(Draft)
+  title       String? // Optional title/name for the care plan
+  description String?        @db.Text // Optional overall description
+
+  // Review & Compliance
+  lastReviewedAt     DateTime? // Last review date
+  nextReviewDate     DateTime? // Next scheduled review date
+  reviewIntervalDays Int?      @default(30) // Days between reviews (default 30)
+
+  // Approval
+  approvedBy     String? // User ID who approved
+  approvedAt     DateTime? // Approval date
+  approvedByName String? // Cached approver name
+
+  // Metadata
+  createdBy      String? // User ID who created the care plan (null if user deleted)
+  creator        User?     @relation("CarePlanCreator", fields: [createdBy], references: [id], onDelete: SetNull)
+  createdAt      DateTime  @default(now())
+  updatedAt      DateTime  @updatedAt
+  deletedAt      DateTime? // Soft delete timestamp
+  currentVersion Int       @default(0) // Current version number
+
+  // Relations
+  problems CarePlanProblem[]
+  versions CarePlanVersion[]
+  alerts   CarePlanAlert[]
+
+  @@index([residentId])
+  @@index([tenantId])
+  @@index([status])
+  @@index([createdBy])
+  @@index([tenantId, residentId])
+  @@index([tenantId, residentId, status])
+  @@index([nextReviewDate])
+  @@index([deletedAt])
+  @@map("care_plans")
+}
+
+// CarePlanProblem - Medical/behavioral problems/diagnoses
+model CarePlanProblem {
+  id         String   @id @default(uuid())
+  carePlanId String
+  carePlan   CarePlan @relation(fields: [carePlanId], references: [id], onDelete: Cascade)
+
+  // Problem Details
+  title         String // Problem title (e.g., "Diabetes Mellitus Type II")
+  category      ProblemCategory @default(Medical)
+  description   String?         @db.Text // Detailed description
+  diagnosisCode String? // ICD-10 or other diagnosis code
+  onsetDate     DateTime? // When problem was identified
+
+  // Metadata
+  createdAt DateTime  @default(now())
+  updatedAt DateTime  @updatedAt
+  deletedAt DateTime? // Soft delete
+
+  // Relations
+  goals CarePlanGoal[]
+
+  @@index([carePlanId])
+  @@index([category])
+  @@index([deletedAt])
+  @@map("care_plan_problems")
+}
+
+// CarePlanGoal - Goals for each problem
+model CarePlanGoal {
+  id        String          @id @default(uuid())
+  problemId String
+  problem   CarePlanProblem @relation(fields: [problemId], references: [id], onDelete: Cascade)
+
+  // Goal Details
+  description  String     @db.Text // Goal description (e.g., "Maintain blood glucose < 150 mg/dL")
+  status       GoalStatus @default(InProgress)
+  targetDate   DateTime? // Target date for achieving goal
+  achievedDate DateTime? // When goal was achieved
+
+  // Evaluation
+  evaluationNotes String?   @db.Text // Progress notes and evaluation
+  lastEvaluatedAt DateTime? // Last evaluation date
+
+  // Metadata
+  createdAt DateTime  @default(now())
+  updatedAt DateTime  @updatedAt
+  deletedAt DateTime? // Soft delete
+
+  // Relations
+  interventions CarePlanIntervention[]
+
+  @@index([problemId])
+  @@index([status])
+  @@index([targetDate])
+  @@index([deletedAt])
+  @@map("care_plan_goals")
+}
+
+// CarePlanIntervention - Specific care actions/interventions
+model CarePlanIntervention {
+  id     String       @id @default(uuid())
+  goalId String
+  goal   CarePlanGoal @relation(fields: [goalId], references: [id], onDelete: Cascade)
+
+  // Intervention Details
+  description     String                @db.Text // Intervention description (e.g., "Monitor blood glucose before meals")
+  frequency       InterventionFrequency @default(Daily)
+  customFrequency String? // Custom frequency description (if frequency is Custom)
+  timesPerDay     Int? // Number of times per day (if applicable)
+  timeSlots       Json? // Array of time slots ["08:00", "12:00", "16:00", "20:00"]
+
+  // Responsible Staff
+  responsibleRole    String? // Role responsible (e.g., "Caregiver", "Nurse")
+  responsibleStaffId String? // Specific staff member ID (optional)
+
+  // Links to other modules
+  medicationId String? // Link to medication (if medication-related)
+  noteId       String? // Link to progress note (if applicable)
+
+  // Metadata
+  createdAt DateTime  @default(now())
+  updatedAt DateTime  @updatedAt
+  deletedAt DateTime? // Soft delete
+
+  @@index([goalId])
+  @@index([frequency])
+  @@index([responsibleStaffId])
+  @@index([medicationId])
+  @@index([deletedAt])
+  @@map("care_plan_interventions")
+}
+
+// CarePlanVersion - Immutable version history (full snapshots)
+model CarePlanVersion {
+  id         String   @id @default(uuid())
+  carePlanId String
+  carePlan   CarePlan @relation(fields: [carePlanId], references: [id], onDelete: Cascade)
+  version    Int // Version number (0 = creation, 1, 2, 3... = edits)
+
+  // Full snapshot of care plan at this version
+  residentId         String
+  residentName       String?
+  tenantId           String
+  status             CarePlanStatus
+  title              String?
+  description        String?        @db.Text
+  lastReviewedAt     DateTime?
+  nextReviewDate     DateTime?
+  reviewIntervalDays Int?
+  approvedBy         String?
+  approvedAt         DateTime?
+  approvedByName     String?
+
+  // Full snapshot of problems, goals, and interventions (stored as JSON)
+  problemsSnapshot Json // Array of problems with goals and interventions
+
+  // Change Summary
+  changeSummary String? @db.Text // Summary of changes in this version
+
+  // Who created this version
+  createdBy String? // User ID who created/edited this version (null if user deleted)
+  creator   User?    @relation("CarePlanVersionCreator", fields: [createdBy], references: [id], onDelete: SetNull)
+  createdAt DateTime @default(now())
+
+  @@unique([carePlanId, version]) // Ensure one version per number per care plan
+  @@index([carePlanId])
+  @@index([carePlanId, version])
+  @@index([createdBy])
+  @@index([createdAt])
+  @@map("care_plan_versions")
+}
+
+// CareLibrary - Reusable care instruction templates
+model CareLibrary {
+  id       String @id @default(uuid())
+  tenantId String
+  tenant   Tenant @relation(fields: [tenantId], references: [id], onDelete: Cascade)
+
+  // Library Item Details
+  name        String // Template name (e.g., "Fall Risk Management")
+  category    ProblemCategory @default(Medical)
+  description String?         @db.Text // Description of when to use this template
+
+  // Template Structure (stored as JSON)
+  // Contains: problem, goals[], interventions[]
+  templateData Json // { problem: {...}, goals: [...], interventions: [...] }
+
+  // Metadata
+  isActive  Boolean   @default(true)
+  createdBy String? // User ID who created (null if user deleted)
+  creator   User?     @relation("CareLibraryCreator", fields: [createdBy], references: [id], onDelete: SetNull)
+  createdAt DateTime  @default(now())
+  updatedAt DateTime  @updatedAt
+  deletedAt DateTime? // Soft delete
+
+  @@index([tenantId])
+  @@index([category])
+  @@index([isActive])
+  @@index([deletedAt])
+  @@map("care_library")
+}
+
+// CarePlanAlert - Review reminders and alerts
+model CarePlanAlert {
+  id         String   @id @default(uuid())
+  carePlanId String
+  carePlan   CarePlan @relation(fields: [carePlanId], references: [id], onDelete: Cascade)
+
+  // Alert Details
+  alertType   AlertType
+  title       String // Alert title
+  message     String    @db.Text // Alert message
+  isDismissed Boolean   @default(false)
+  dismissedAt DateTime?
+  dismissedBy String? // User ID who dismissed
+
+  // Metadata
+  createdAt  DateTime  @default(now())
+  resolvedAt DateTime? // When alert was resolved (if applicable)
+
+  @@index([carePlanId])
+  @@index([alertType])
+  @@index([isDismissed])
+  @@index([createdAt])
+  @@map("care_plan_alerts")
+}
+
+// Enum for audit action types
+enum AuditAction {
+  // Authentication actions
+  LOGIN_SUCCESS
+  LOGIN_FAILED
+  LOGOUT
+  TOKEN_REFRESH
+  PASSWORD_RESET_REQUEST
+  PASSWORD_RESET_SUCCESS
+  EMAIL_VERIFICATION
+
+  // User actions
+  USER_CREATED
+  USER_UPDATED
+  USER_DELETED
+  USER_INVITED
+  USER_ACTIVATED
+  USER_DEACTIVATED
+
+  // Tenant actions
+  TENANT_CREATED
+  TENANT_UPDATED
+  TENANT_DELETED
+  TENANT_ACTIVATED
+  TENANT_DEACTIVATED
+
+  // Form actions
+  FORM_CREATED
+  FORM_UPDATED
+  FORM_DELETED
+  FORM_SUBMITTED
+  FORM_DRAFT_SAVED
+  FORM_DRAFT_DELETED
+
+  // PDF actions
+  PDF_UPLOADED
+  PDF_GENERATED
+  PDF_DOWNLOADED
+  PDF_DELETED
+  PDF_TEMPLATE_CREATED
+  PDF_TEMPLATE_UPDATED
+  PDF_TEMPLATE_DELETED
+
+  // Embedding actions
+  EMBEDDING_CREATED
+  EMBEDDING_DELETED
+  EMBEDDING_QUERIED
+
+  // Note actions
+  NOTE_CREATED
+  NOTE_UPDATED
+  NOTE_DELETED
+  NOTE_EXPORTED
+
+  // Billing actions
+  BILLING_TIER_CREATED
+  BILLING_TIER_UPDATED
+  BILLING_TIER_DELETED
+  RESIDENT_TIER_ASSIGNED
+  RESIDENT_TIER_UPDATED
+  INVOICE_GENERATED
+  INVOICE_UPDATED
+  INVOICE_STATUS_CHANGED
+  INVOICE_EXPORTED
+
+  // Medication actions
+  MEDICATION_CREATED
+  MEDICATION_UPDATED
+  MEDICATION_DELETED
+  MEDICATION_ACTIVATED
+  MEDICATION_DEACTIVATED
+
+  // MAR actions
+  MAR_RECORD_CREATED
+  MAR_RECORD_UPDATED
+  MAR_RECORD_DELETED
+  MAR_RECORD_LOCKED
+  MAR_RECORD_UNLOCKED
+
+  // PRN actions
+  PRN_RECORD_CREATED
+  PRN_RECORD_UPDATED
+  PRN_RECORD_COMPLETED
+
+  // Vitals actions
+  VITALS_RECORDED
+  VITALS_UPDATED
+
+  // MAR Export
+  MAR_EXPORTED
+  MAR_SCHEDULE_GENERATED
+
+  // System actions
+  SYSTEM_ERROR
+  ACCESS_DENIED
+  UNAUTHORIZED_ACCESS
+
+  // Behavioral tracking actions
+  BEHAVIORAL_LOG_CREATED
+  BEHAVIORAL_LOG_UPDATED
+  BEHAVIORAL_LOG_DELETED
+
+  // NCP (Negotiated Care Plan) actions
+  PHI_EXTRACT_NCP
+  PHI_UPDATE_NCP
+  PHI_GENERATE_NCP_DOCX
+  PHI_DOWNLOAD_NCP_DOCX
+  // NCP DSHS draft generation
+  PHI_GENERATE_NCP_DSHS_DRAFT
+  BEHAVIORAL_NOTE_GENERATED
+  BEHAVIORAL_NOTE_UPDATED
+  BEHAVIORAL_REPORT_EXPORTED
+
+  // Nursing Care Plan actions
+  CARE_PLAN_CREATED
+  CARE_PLAN_UPDATED
+  CARE_PLAN_ARCHIVED
+  CARE_PLAN_APPROVED
+  CARE_PLAN_PROBLEM_ADDED
+  CARE_PLAN_PROBLEM_REMOVED
+  CARE_PLAN_GOAL_ADDED
+  CARE_PLAN_GOAL_UPDATED
+  CARE_PLAN_INTERVENTION_ADDED
+  CARE_PLAN_INTERVENTION_UPDATED
+  CARE_PLAN_VERSION_CREATED
+  CARE_PLAN_EXPORTED
+  CARE_LIBRARY_CREATED
+  CARE_LIBRARY_UPDATED
+  CARE_LIBRARY_DELETED
+
+  // Appointment Tracking actions
+  APPOINTMENT_CREATED
+  APPOINTMENT_UPDATED
+  APPOINTMENT_DELETED
+
+  // HIPAA: PHI Access actions (for audit compliance)
+  PHI_ACCESS_MEDICATIONS
+  PHI_ACCESS_MAR
+  PHI_ACCESS_PRN
+  PHI_ACCESS_VITALS
+  PHI_ACCESS_CARE_PLAN
+  PHI_ACCESS_BEHAVIORAL
+  PHI_ACCESS_NOTE
+  PHI_ACCESS_RESIDENT
+
+  // HIPAA: PHI Create actions
+  PHI_CREATE_MEDICATION
+  PHI_CREATE_MAR_RECORD
+  PHI_CREATE_PRN_RECORD
+  PHI_CREATE_VITAL_SIGN
+  PHI_CREATE_CARE_PLAN
+  PHI_CREATE_BEHAVIORAL_LOG
+  PHI_CREATE_NOTE
+  PHI_CREATE_RESIDENT
+
+  // HIPAA: PHI Update actions
+  PHI_UPDATE_MEDICATION
+  PHI_UPDATE_MAR_RECORD
+  PHI_UPDATE_PRN_RECORD
+  PHI_UPDATE_VITAL_SIGN
+  PHI_UPDATE_CARE_PLAN
+  PHI_UPDATE_BEHAVIORAL_LOG
+  PHI_UPDATE_NOTE
+  PHI_UPDATE_RESIDENT
+
+  // HIPAA: PHI Delete actions
+  PHI_DELETE_MEDICATION
+  PHI_DELETE_CARE_PLAN
+  PHI_DELETE_NOTE
+  PHI_DELETE_RESIDENT
+
+  // Facility Management actions
+  FACILITY_PROFILE_CREATED
+  FACILITY_PROFILE_UPDATED
+  FACILITY_DOCUMENT_UPLOADED
+  FACILITY_DOCUMENT_MODIFIED
+  FACILITY_DOCUMENT_DELETED
+  FACILITY_DOCUMENT_VIEWED
+  FACILITY_FOLDER_CREATED
+  FACILITY_FOLDER_UPDATED
+  FACILITY_FOLDER_DELETED
+  EVACUATION_DRILL_CREATED
+  EVACUATION_DRILL_COMPLETED
+  VISITOR_CHECK_IN
+  VISITOR_CHECK_OUT
+  VISITOR_QR_SIGN_IN
+
+  // Staff Document Management actions
+  STAFF_MEMBER_CREATED
+  STAFF_MEMBER_UPDATED
+  STAFF_MEMBER_DELETED
+  STAFF_FACILITY_ASSIGNED
+  STAFF_FACILITY_UNASSIGNED
+  STAFF_FOLDER_CREATED
+  STAFF_FOLDER_UPDATED
+  STAFF_FOLDER_DELETED
+  STAFF_DOCUMENT_UPLOADED
+  STAFF_DOCUMENT_MODIFIED
+  STAFF_DOCUMENT_DELETED
+
+  // Resident Document Folder System
+  RESIDENT_FOLDER_CREATED
+  RESIDENT_FOLDER_UPDATED
+  RESIDENT_FOLDER_DELETED
+  RESIDENT_DOCUMENT_UPLOADED
+  RESIDENT_DOCUMENT_MODIFIED
+  RESIDENT_DOCUMENT_DELETED
+  RESIDENT_DOCUMENT_PINNED
+  RESIDENT_DOCUMENT_UNPINNED
+
+  // Role & Permission Engine
+  ROLE_CREATED
+  ROLE_UPDATED
+  ROLE_DELETED
+  ROLE_PERMISSION_GRANTED
+  ROLE_PERMISSION_REVOKED
+  USER_ROLE_ASSIGNED
+  USER_ROLE_UNASSIGNED
+
+  // Birthday Tracking actions
+  BIRTHDAY_REMINDER_SENT
+  BIRTHDAY_CONFIG_UPDATED
+}
+
+// ============================================
+// AFH Negotiated Care Plan (NCP) Extraction Models
+// ============================================
+
+// Enum for NCP extraction status
+enum NcpStatus {
+  PENDING // Uploaded, waiting for extraction
+  EXTRACTING // Currently being processed
+  EXTRACTED // Data extracted, ready for review
+  REVIEWED // User reviewed/approved
+  POPULATED // DOCX generated
+  FAILED // Extraction or population failed
+}
+
+// NCP Extraction - Stores extracted data from assessment PDFs
+model NcpExtraction {
+  id         String    @id @default(uuid())
+  tenantId   String
+  tenant     Tenant    @relation(fields: [tenantId], references: [id], onDelete: Cascade)
+  userId     String? // User who uploaded/initiated extraction (optional for audit trail)
+  user       User?     @relation("NcpExtractionCreator", fields: [userId], references: [id], onDelete: SetNull)
+  residentId String? // Resident this NCP extraction belongs to
+  resident   Resident? @relation(fields: [residentId], references: [id], onDelete: SetNull)
+
+  // Source PDF info
+  sourcePdfS3Key    String // S3 key of uploaded PDF
+  sourcePdfFileName String
+  sourcePdfSize     Int? // File size in bytes
+
+  // Extracted data (JSON matching afh_ncp_schema_flat.json structure)
+  extractedData Json // Stores all ~500+ fields from schema
+
+  // DSHS/CBHS draft generation (Layer 1 + Layer 2)
+  requiresCbhs Boolean @default(false) // If true, Layer 2 applies CBHS language standards
+  cbhsNotes    String? @db.Text        // Notes explaining why CBHS applies
+  layer1Draft  Json?   // Layer 1 output: extractedData rewritten in DSHS clinical language
+  layer2Final  Json?   // Layer 2 output: refined DSHS draft (+ CBHS if requiresCbhs = true)
+
+  // Processing status
+  status           NcpStatus @default(PENDING)
+  extractionMethod String? // "openai", "hybrid", etc.
+  extractionModel  String? // "gpt-4o", "gpt-4o-mini", etc.
+
+  // Error handling
+  errorMessage String? @db.Text
+  retryCount   Int     @default(0)
+
+  // Live progress for UI (0-100, set during EXTRACTING)
+  progressPercent Int?
+  bullJobId       String? // BullMQ job id when Redis queue is used
+
+  // Generated DOCX
+  populatedDocxS3Key String? // S3 key of populated DOCX
+  populatedDocxUrl   String? // Public URL for download
+
+  // Version tracking (increments each time DOCX is regenerated)
+  ncpVersion Int @default(1)
+
+  // Approval (user must approve before final download/print)
+  approvedAt     DateTime?
+  approvedBy     String?   // User ID who approved
+  approvedByName String?   // Cached approver display name
+  approvedByUser User?     @relation("NcpExtractionApprover", fields: [approvedBy], references: [id], onDelete: SetNull)
+
+  // Metadata
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
+  extractedAt DateTime? // When extraction completed
+  populatedAt DateTime? // When DOCX was generated
+
+  @@index([tenantId])
+  @@index([userId])
+  @@index([residentId])
+  @@index([status])
+  @@index([tenantId, status])
+  @@index([tenantId, residentId])
+  @@index([createdAt])
+  @@map("ncp_extractions")
+}
+
+// ============================================
+// Facility Management Module
+// ============================================
+
+// Facility Profile (many per Tenant - multi-AFH operators)
+model Facility {
+  id                    String    @id @default(uuid())
+  tenantId              String
+  tenant                Tenant    @relation(fields: [tenantId], references: [id], onDelete: Cascade)
+  name                  String
+  licenseNumber         String?
+  address               String?
+  capacity              Int? // Beds
+  licenseExpirationDate DateTime? @db.Date
+  /// External image URL when not using uploaded photo (upload clears this)
+  profilePhotoUrl       String?   @map("profile_photo_url") @db.VarChar(2048)
+  profilePhotoS3Key     String?   @map("profile_photo_s3_key") @db.VarChar(1024)
+  /// Main contact phone (UI/API validate; column name kept for compatibility)
+  contactInformation    String?   @map("contact_information") @db.Text
+  createdAt             DateTime  @default(now())
+  updatedAt             DateTime  @updatedAt
+
+  folders            FacilityFolder[]
+  documents          FacilityDocument[]
+  evacuationDrills   EvacuationDrill[]
+  visitorLogs        VisitorLog[]
+  staffAssignments   StaffFacilityAssignment[]
+  qrConfig           FacilityQRConfig?
+  appointments       Appointment[]
+
+  @@index([tenantId])
+  @@map("facilities")
+}
+
+// Folder display size (per-folder setting)
+enum FolderSize {
+  SMALL
+  MEDIUM
+  LARGE
+}
+
+// Nested folder structure for facility documents
+model FacilityFolder {
+  id           String         @id @default(uuid())
+  facilityId   String
+  facility     Facility       @relation(fields: [facilityId], references: [id], onDelete: Cascade)
+  parentId     String?
+  parent       FacilityFolder? @relation("FolderHierarchy", fields: [parentId], references: [id], onDelete: Cascade)
+  children     FacilityFolder[] @relation("FolderHierarchy")
+  name         String
+  size         FolderSize     @default(MEDIUM)
+  color        String?        // e.g. hex #rrggbb or preset name for easier identification
+  passwordHash String?        // bcrypt hash; never returned in API
+  isSystemDefault Boolean     @default(false) @map("is_system_default") // auto-created roots; non-deletable
+  sortOrder    Int           @default(10000) @map("sort_order")
+  createdAt    DateTime       @default(now())
+  updatedAt    DateTime       @updatedAt
+
+  documents FacilityDocument[]
+
+  @@index([facilityId])
+  @@index([parentId])
+  @@index([facilityId, parentId, sortOrder])
+  @@map("facility_folders")
+}
+
+// Facility documents (stored in S3)
+model FacilityDocument {
+  id         String          @id @default(uuid())
+  facilityId String
+  facility   Facility        @relation(fields: [facilityId], references: [id], onDelete: Cascade)
+  folderId   String?
+  folder     FacilityFolder? @relation(fields: [folderId], references: [id], onDelete: SetNull)
+  fileName   String
+  s3Key      String
+  s3Url      String
+  fileSize   Int?
+  mimeType   String?
+  uploadedBy String?
+  createdAt  DateTime        @default(now())
+  updatedAt  DateTime        @updatedAt
+
+  @@index([facilityId])
+  @@index([folderId])
+  @@map("facility_documents")
+}
+
+// Evacuation drill type
+enum EvacuationDrillType {
+  REGULAR // Every 60 days
+  ANNUAL_FULL // Once per year
+}
+
+// Evacuation drills
+model EvacuationDrill {
+  id            String             @id @default(uuid())
+  facilityId    String
+  facility      Facility           @relation(fields: [facilityId], references: [id], onDelete: Cascade)
+  drillType     EvacuationDrillType
+  scheduledDate DateTime           @db.Date
+  completedDate DateTime?          @db.Date
+  completedBy   String?
+  notes         String?            @db.Text
+  createdAt     DateTime           @default(now())
+  updatedAt     DateTime           @updatedAt
+
+  @@index([facilityId])
+  @@index([scheduledDate])
+  @@index([completedDate])
+  @@map("evacuation_drills")
+}
+
+// Visitor log
+model VisitorLog {
+  id                     String    @id @default(uuid())
+  facilityId              String
+  facility                Facility  @relation(fields: [facilityId], references: [id], onDelete: Cascade)
+  residentId              String?
+  resident                Resident? @relation(fields: [residentId], references: [id], onDelete: SetNull)
+  personVisitedName       String?   @map("person_visited_name") @db.VarChar(255)   // Free-text from visitor (no directory exposed)
+  visitorName             String
+  visitorEmail            String?   @map("visitor_email") @db.VarChar(255)
+  visitorPhone            String?   @map("visitor_phone") @db.VarChar(50)
+  expectedDurationMinutes Int?      @map("expected_duration_minutes")               // 15, 30, 60
+  reminderSentAt          DateTime? @map("reminder_sent_at")                        // When 5-min reminder was emailed
+  checkInAt               DateTime
+  checkOutAt              DateTime?
+  notes                   String?   @db.Text
+  createdAt               DateTime  @default(now())
+  updatedAt               DateTime  @updatedAt
+
+  @@index([facilityId])
+  @@index([residentId])
+  @@index([checkInAt])
+  @@index([checkOutAt])
+  @@map("visitor_logs")
+}
+
+// Visitor QR sign-in: per-facility token and printable template customization
+model FacilityQRConfig {
+  id                   String    @id @default(uuid())
+  facilityId            String    @unique
+  facility              Facility  @relation(fields: [facilityId], references: [id], onDelete: Cascade)
+  token                 String    @unique // Secure token for QR link; regenerable
+  instructionText       String?   @map("instruction_text") @db.VarChar(500)   // e.g. "Scan to Sign In"
+  disclaimerText        String?   @map("disclaimer_text") @db.VarChar(1000)
+  layoutOption          String?   @map("layout_option") @db.VarChar(50)       // e.g. "default", "compact"
+  facilityDisplayName   String?   @map("facility_display_name") @db.VarChar(255)
+  logoUrl               String?   @map("logo_url") @db.VarChar(2048)       // External URL; used when logoS3Key is null
+  logoS3Key             String?   @map("logo_s3_key") @db.VarChar(1024)    // S3 key when logo is uploaded (takes precedence)
+  createdAt             DateTime  @default(now())
+  updatedAt             DateTime  @updatedAt
+
+  @@index([token])
+  @@map("facility_qr_configs")
+}
+
+// ============================================
+// Staff Document Management Module
+// ============================================
+// StaffMember links to User (role STAFF) - admin creates Users with role STAFF, StaffMember extends for document management
+
+enum StaffEmploymentStatus {
+  ACTIVE
+  INACTIVE
+}
+
+// Staff Member - Links to User (role STAFF) for document management
+model StaffMember {
+  id        String   @id @default(uuid())
+  tenantId  String
+  tenant    Tenant   @relation(fields: [tenantId], references: [id], onDelete: Cascade)
+  userId    String   @unique // Links to User (role STAFF) - admin creates staff via User invite
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  // Employee profile (admin-maintained; separate from login User name/email when needed)
+  profilePhotoUrl    String?
+  profilePhotoS3Key  String?
+  fullLegalName      String?
+  profilePhone       String?               @map("profile_phone")
+  profileEmail       String?               @map("profile_email")
+  address            String?               @db.Text
+  jobTitle           String?               @map("job_title")
+  hireDate           DateTime?             @map("hire_date") @db.Date
+  emergencyContact   String?               @map("emergency_contact") @db.Text
+  employmentStatus   StaffEmploymentStatus @default(ACTIVE) @map("employment_status")
+
+  // Shown when employmentStatus is INACTIVE (separation / archive)
+  separationTerminationRecord       String?   @map("separation_termination_record") @db.Text
+  separationTerminationDate         DateTime? @map("separation_termination_date") @db.Date
+  separationExitNotes               String?   @map("separation_exit_notes") @db.Text
+  separationArchivedPersonnelNote   String?   @map("separation_archived_personnel_note") @db.Text
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  folders             StaffFolder[]
+  documents           StaffDocument[]
+  facilityAssignments StaffFacilityAssignment[]
+  appointments        Appointment[]
+
+  @@index([tenantId])
+  @@index([userId])
+  @@index([employmentStatus])
+  @@map("staff_members")
+}
+
+// Staff-to-Facility assignment (many-to-many for multi-AFH operators)
+model StaffFacilityAssignment {
+  id         String   @id @default(uuid())
+  staffId    String
+  staff      StaffMember @relation(fields: [staffId], references: [id], onDelete: Cascade)
+  facilityId String
+  facility   Facility   @relation(fields: [facilityId], references: [id], onDelete: Cascade)
+  assignedAt DateTime  @default(now())
+
+  @@unique([staffId, facilityId])
+  @@index([staffId])
+  @@index([facilityId])
+  @@map("staff_facility_assignments")
+}
+
+// Nested folder structure for staff documents
+model StaffFolder {
+  id           String       @id @default(uuid())
+  staffId      String
+  staff        StaffMember  @relation(fields: [staffId], references: [id], onDelete: Cascade)
+  parentId     String?
+  parent       StaffFolder? @relation("StaffFolderHierarchy", fields: [parentId], references: [id], onDelete: Cascade)
+  children     StaffFolder[] @relation("StaffFolderHierarchy")
+  name         String
+  size         FolderSize   @default(MEDIUM)
+  color        String?      // e.g. hex #rrggbb or preset name for easier identification
+  passwordHash String?      // bcrypt hash; never returned in API
+  isSystemDefault Boolean   @default(false) @map("is_system_default") // auto-created roots; non-deletable
+  sortOrder    Int          @default(10000) @map("sort_order") // roots 1–8; ad-hoc 10000
+  createdAt    DateTime     @default(now())
+  updatedAt    DateTime     @updatedAt
+
+  documents StaffDocument[]
+
+  @@index([staffId])
+  @@index([parentId])
+  @@index([staffId, parentId, sortOrder])
+  @@map("staff_folders")
+}
+
+// Document type enum
+enum StaffDocumentType {
+  LICENSE
+  CERTIFICATION
+  TRAINING
+}
+
+// Staff documents (stored in S3)
+model StaffDocument {
+  id             String           @id @default(uuid())
+  staffId        String
+  staff          StaffMember      @relation(fields: [staffId], references: [id], onDelete: Cascade)
+  documentType   StaffDocumentType // LICENSE | CERTIFICATION | TRAINING
+  folderId       String?
+  folder         StaffFolder?     @relation(fields: [folderId], references: [id], onDelete: SetNull)
+  fileName       String
+  s3Key          String
+  s3Url          String
+  fileSize       Int?
+  mimeType       String?
+  expirationDate DateTime?        @db.Date
+  uploadedBy     String?
+  createdAt      DateTime        @default(now())
+  updatedAt      DateTime        @updatedAt
+
+  @@index([staffId])
+  @@index([folderId])
+  @@index([documentType])
+  @@index([expirationDate])
+  @@index([staffId, documentType])
+  @@map("staff_documents")
+}
+
+// ============================================
+// Appointment Tracking Module
+// ============================================
+
+enum AppointmentType {
+  MEDICAL
+  THERAPY
+  INSPECTION
+  INTERNAL_OTHER
+}
+
+enum AppointmentStatus {
+  SCHEDULED
+  COMPLETED
+  CANCELLED
+  NO_SHOW
+}
+
+model Appointment {
+  id              String             @id @default(uuid())
+  tenantId        String
+  tenant          Tenant             @relation(fields: [tenantId], references: [id], onDelete: Cascade)
+  title           String
+  scheduledAt     DateTime
+  durationMinutes Int?              // 15, 30, 45, or 60; null = 60 for backward compatibility
+  location        String?
+  notes           String?            @db.Text
+  appointmentType AppointmentType
+  status          AppointmentStatus  @default(SCHEDULED)
+  residentId      String?
+  resident        Resident?          @relation(fields: [residentId], references: [id], onDelete: SetNull)
+  staffId         String?
+  staff           StaffMember?      @relation(fields: [staffId], references: [id], onDelete: SetNull)
+  facilityId      String?
+  facility        Facility?         @relation(fields: [facilityId], references: [id], onDelete: SetNull)
+  deletedAt       DateTime?
+  createdAt       DateTime          @default(now())
+  updatedAt       DateTime          @updatedAt
+
+  reminders AppointmentReminder[]
+
+  @@index([tenantId])
+  @@index([tenantId, scheduledAt])
+  @@index([residentId])
+  @@index([staffId])
+  @@index([facilityId])
+  @@index([scheduledAt])
+  @@index([deletedAt])
+  @@index([status])
+  @@map("appointments")
+}
+
+model AppointmentReminder {
+  id                    String       @id @default(uuid())
+  appointmentId         String
+  appointment           Appointment  @relation(fields: [appointmentId], references: [id], onDelete: Cascade)
+  tenantId              String
+  tenant                Tenant       @relation(fields: [tenantId], references: [id], onDelete: Cascade)
+  reminderMinutesBefore Int          // e.g. 60 (1h), 1440 (24h)
+  sentAt                DateTime?
+  createdAt             DateTime     @default(now())
+
+  @@index([appointmentId])
+  @@index([tenantId])
+  @@index([sentAt])
+  @@map("appointment_reminders")
+}
+
+model AppointmentNotification {
+  id            String    @id @default(uuid())
+  tenantId      String
+  tenant        Tenant    @relation(fields: [tenantId], references: [id], onDelete: Cascade)
+  userId        String    // Recipient (User who sees the notification)
+  user          User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+  appointmentId String
+  reminderId    String?   // Which AppointmentReminder triggered this
+  title         String
+  message       String    @db.Text
+  readAt        DateTime?
+  createdAt     DateTime  @default(now())
+
+  @@index([tenantId])
+  @@index([userId])
+  @@index([readAt])
+  @@index([createdAt])
+  @@index([userId, readAt])
+  @@map("appointment_notifications")
+}
+
+// Birthday Tracking Notifications
+model BirthdayNotification {
+  id            String    @id @default(uuid())
+  tenantId      String
+  tenant        Tenant    @relation(fields: [tenantId], references: [id], onDelete: Cascade)
+  userId        String    // Recipient (staff who sees the notification)
+  user          User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+  personType    String    // "resident" or "staff"
+  personId      String    // Resident.id or User.id of the birthday person
+  personName    String    // Cached name for display
+  birthdayDate  DateTime  @db.Date // The actual birthday date this year
+  title         String
+  message       String    @db.Text
+  readAt        DateTime?
+  createdAt     DateTime  @default(now())
+
+  @@index([tenantId])
+  @@index([userId])
+  @@index([readAt])
+  @@index([createdAt])
+  @@index([userId, readAt])
+  @@index([tenantId, birthdayDate])
+  @@map("birthday_notifications")
+}
+
+model UserFcmToken {
+  id        String   @id @default(uuid())
+  userId    String
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  token     String   @db.Text
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@unique([userId, token])
+  @@index([userId])
+  @@map("user_fcm_tokens")
+}
+
+// Task Manager - Daily Operations
+enum TaskPriority {
+  LOW
+  MEDIUM
+  HIGH
+}
+
+enum TaskStatus {
+  PENDING
+  IN_PROGRESS
+  COMPLETED
+}
+
+model Task {
+  id          String       @id @default(uuid())
+  tenantId    String
+  tenant      Tenant       @relation(fields: [tenantId], references: [id], onDelete: Cascade)
+  title       String
+  description String?      @db.Text
+  dueDate     DateTime     @db.Date
+  priority    TaskPriority @default(MEDIUM)
+  status      TaskStatus   @default(PENDING)
+  assigneeId  String?
+  assignee    User?        @relation("TaskAssignee", fields: [assigneeId], references: [id], onDelete: SetNull)
+  assigneeRole String?
+  createdById String
+  createdBy   User         @relation("TaskCreator", fields: [createdById], references: [id], onDelete: Cascade)
+  completedAt DateTime?
+  deletedAt   DateTime?
+  createdAt   DateTime     @default(now())
+  updatedAt   DateTime     @updatedAt
+
+  @@index([tenantId])
+  @@index([tenantId, status])
+  @@index([tenantId, dueDate])
+  @@index([assigneeId])
+  @@index([createdById])
+  @@index([deletedAt])
+  @@map("tasks")
+}
