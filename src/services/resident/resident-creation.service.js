@@ -69,6 +69,10 @@ function toPrismaFieldName(fieldName) {
       "medicalProvidersMentalHealthProvider",
     medical_providers_health_coverage_preferred_hospital_er:
       "medicalProvidersPreferredHospitalEr",
+    medical_providers_health_coverage_last_doctor_visit:
+      "medicalProvidersLastDoctorVisit",
+    medical_providers_health_coverage_last_dental_visit:
+      "medicalProvidersLastDentalVisit",
     medical_providers_health_coverage_pharmacy_name:
       "medicalProvidersPharmacyName",
     medical_providers_health_coverage_pharmacy_phone:
@@ -508,4 +512,7 @@ async function updateResident({ residentId, tenantId, user, residentData }) {
 module.exports = {
   createResident,
   updateResident,
+  // Exported for scripts/check-resident-field-roundtrip.js, which verifies every
+  // form key still resolves to a real column. Not part of the service API.
+  toPrismaFieldName,
 };

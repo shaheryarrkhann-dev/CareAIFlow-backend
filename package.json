@@ -11,6 +11,8 @@
     "prisma:migrate": "prisma migrate dev",
     "prisma:studio": "prisma studio",
     "prisma:seed": "node prisma/seed.js",
+    "check:resident-fields": "node scripts/check-resident-field-roundtrip.js",
+    "report:resident-field-loss": "NODE_ENV=production node scripts/report-resident-field-loss.js",
     "test:pdfjs-import": "node test-pdfjs-import.js",
     "test:coordinate-detection": "node test-coordinate-detection.js",
     "test:compare-methods": "node compare-detection-methods.js",

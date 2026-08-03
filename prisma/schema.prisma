@@ -422,6 +422,19 @@ model Resident {
   allergiesEnvironmentalAllergies String? @map("allergies_environmental_allergies")
   allergiesAllergySeverity        String? @map("allergies_allergy_severity")
   allergiesReactionNotes          String? @map("allergies_reaction_notes")
+  // AFH New Resident Intake Form §5 — Allergies. The printed form is a table of
+  // Allergen / Reaction / Severity rows plus a "No known allergies" checkbox.
+  // Stored as Json rather than a related table: nothing queries allergies across
+  // residents today, and the schema already uses Json for repeatable lists
+  // (dietNutritionFoodAllergies, behavioralSafetyRisksKnownTriggers).
+  // Shape: [{ allergen, reaction, severity }]
+  // The flat allergies* columns above are retained; they split by category
+  // (medication / food / environmental) and still feed the catch-all step.
+  allergiesList                   Json?    @map("allergies_list")
+  // True asserts NKA. Mutually exclusive with allergiesList by construction:
+  // the form clears the rows when this is ticked, so the record cannot claim
+  // both "no known allergies" and a list of them.
+  allergiesNka                    Boolean? @map("allergies_nka")
 
   // Care Needs (from resident_fields.json)
   careNeedsFallRisk               String? @map("care_needs_fall_risk") // Low | Medium | High
@@ -531,6 +544,11 @@ model Resident {
   medicalProvidersPrimaryCareProviderPhone String? @map("medical_providers_health_coverage_primary_care_provider_phone")
   medicalProvidersMentalHealthProvider   String?   @map("medical_providers_health_coverage_mental_health_provider")
   medicalProvidersPreferredHospitalEr    String?   @map("medical_providers_health_coverage_preferred_hospital_er")
+  // AFH New Resident Intake Form §3 — Physician & Care Team. Dates only; the
+  // form flags a dental visit older than a year as due, which is computed at
+  // render time rather than stored, so it stays correct as time passes.
+  medicalProvidersLastDoctorVisit        DateTime? @map("medical_providers_health_coverage_last_doctor_visit") @db.Date
+  medicalProvidersLastDentalVisit        DateTime? @map("medical_providers_health_coverage_last_dental_visit") @db.Date
   medicalProvidersPharmacyName           String?   @map("medical_providers_health_coverage_pharmacy_name")
   medicalProvidersPharmacyPhone          String?   @map("medical_providers_health_coverage_pharmacy_phone")
   medicalProvidersHealthInsurancePayorType String?  @map("medical_providers_health_coverage_health_insurance_payor_type")
