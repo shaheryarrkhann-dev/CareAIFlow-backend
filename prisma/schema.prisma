@@ -595,6 +595,11 @@ model Resident {
   codeStatusAdvanceDirectivesCodeStatus  String?   @map("code_status_advance_directives_code_status")
   codeStatusAdvanceDirectivesPolstOnFile String?   @map("code_status_advance_directives_polst_on_file")
   codeStatusAdvanceDirectivesAdvanceDirectiveOnFile String? @map("code_status_advance_directives_advance_directive_on_file")
+  // AFH New Resident Intake Form §7 — Advance Directives. Only the review date
+  // and signatory are new; the directive status itself maps onto the existing
+  // canonical code-status and on-file columns above.
+  codeStatusAdvanceDirectivesReviewDate DateTime? @map("code_status_advance_directives_review_date") @db.Date
+  codeStatusAdvanceDirectivesSignedBy   String?   @map("code_status_advance_directives_signed_by")
   financialCaseManagementCaseManagerName String?   @map("financial_case_management_case_manager_name")
   financialCaseManagementCaseManagerPhone String?  @map("financial_case_management_case_manager_phone")
   financialCaseManagementCaseManagerEmail String?  @map("financial_case_management_case_manager_email")
