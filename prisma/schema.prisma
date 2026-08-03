@@ -431,6 +431,13 @@ model Resident {
   // The flat allergies* columns above are retained; they split by category
   // (medication / food / environmental) and still feed the catch-all step.
   allergiesList                   Json?    @map("allergies_list")
+  // AFH New Resident Intake Form §6 — Diagnoses & Medical History.
+  // Shape: [{ diagnosis, dateDiagnosed, notes }]. "diagnosis" holds an ICD-10
+  // code or a free-text description; the printed form has a single column and
+  // the claims fallback chain already tolerates either.
+  // Row 1's diagnosis is mirrored into diagnosesHealthConditionsDiagnoses on
+  // save so claims-mapping.service.js keeps resolving a billing diagnosis code.
+  diagnosesList                   Json?    @map("diagnoses_list")
   // True asserts NKA. Mutually exclusive with allergiesList by construction:
   // the form clears the rows when this is ticked, so the record cannot claim
   // both "no known allergies" and a list of them.

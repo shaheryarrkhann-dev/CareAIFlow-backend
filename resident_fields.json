@@ -61,6 +61,7 @@
   "diagnoses_health_conditions_allergies": "string",
   "allergies_list": [],
   "allergies_nka": true,
+  "diagnoses_list": [],
   "functional_status_adls_mobility_status": "Independent | Walker | Wheelchair | Bedbound",
   "functional_status_adls_bathing_assistance": "Independent | Supervision Only | Partial Assistance | Full Assistance | Refuses / Non-compliant",
   "functional_status_adls_dressing_assistance": "Independent | Supervision / Cueing | Partial Assistance | Full Assistance | Refuses / Non-Compliant",

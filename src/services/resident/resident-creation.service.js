@@ -158,6 +158,25 @@ async function createResident({ tenantId, userId, residentData }) {
     residentData.resident_identification_full_legal_name = composedName;
   }
 
+  // Intake form §6 collects diagnoses as a table. claims-mapping.service.js
+  // resolves the billing diagnosis code from the flat
+  // diagnoses_health_conditions_diagnoses column (among others), and staff
+  // filling the table will not also fill that field - claims would silently
+  // lose the diagnosis. Mirror the first row across unless it was set directly.
+  if (
+    Array.isArray(residentData.diagnoses_list) &&
+    !residentData.diagnoses_health_conditions_diagnoses
+  ) {
+    const primary = residentData.diagnoses_list.find(
+      (row) => row && typeof row === "object" && String(row.diagnosis || "").trim()
+    );
+    if (primary) {
+      residentData.diagnoses_health_conditions_diagnoses = String(
+        primary.diagnosis
+      ).trim();
+    }
+  }
+
   // Validate required fields (support both old and new schema field names)
   const fullName =
     residentData.resident_identification_full_legal_name ||
