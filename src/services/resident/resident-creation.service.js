@@ -49,6 +49,16 @@ function toPrismaFieldName(fieldName) {
       "emergencyLegalContactsGuardianPoaContactInfo",
     emergency_legal_contacts_legal_guardian_poa_copy_on_file:
       "emergencyLegalContactsGuardianPoaCopyOnFile",
+    // Intake form §2 additions — "legal_guardian_poa_*" keys drop the "Legal"
+    // prefix in the column name, matching the existing entries above.
+    emergency_legal_contacts_legal_guardian_poa_type:
+      "emergencyLegalContactsGuardianPoaType",
+    emergency_legal_contacts_legal_guardian_poa_phone:
+      "emergencyLegalContactsGuardianPoaPhone",
+    emergency_legal_contacts_legal_guardian_poa_email:
+      "emergencyLegalContactsGuardianPoaEmail",
+    emergency_legal_contacts_legal_guardian_poa_copy_attached:
+      "emergencyLegalContactsGuardianPoaCopyAttached",
 
     // medical_providers_health_coverage_*
     medical_providers_health_coverage_primary_care_provider_name:
@@ -128,6 +138,22 @@ function toPrismaFieldName(fieldName) {
  * @returns {Promise<Object>} Created resident record
  */
 async function createResident({ tenantId, userId, residentData }) {
+  // Intake form §1 collects first/middle/last separately. Compose the legal name
+  // when only the parts were supplied so downstream consumers (NCP extraction,
+  // care plans, billing, PDF reports) keep reading a single full name.
+  const composedName = [
+    residentData.resident_identification_first_name,
+    residentData.resident_identification_middle_name,
+    residentData.resident_identification_last_name,
+  ]
+    .filter((part) => typeof part === "string" && part.trim())
+    .join(" ")
+    .trim();
+
+  if (composedName && !residentData.resident_identification_full_legal_name) {
+    residentData.resident_identification_full_legal_name = composedName;
+  }
+
   // Validate required fields (support both old and new schema field names)
   const fullName =
     residentData.resident_identification_full_legal_name ||

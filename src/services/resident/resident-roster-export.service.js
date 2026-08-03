@@ -102,6 +102,10 @@ async function exportResidentRosterPdf(user, options = {}) {
   const where = {
     tenantId,
     deletedAt: null,
+    // Scope the roster to the requested facility. Without this the export
+    // listed every resident in the tenant while showing a single facility's
+    // letterhead — wrong, and not obviously so, for multi-facility operators.
+    ...(facilityId ? { facilityId } : {}),
     ...(Array.isArray(residentIds) && residentIds.length > 0
       ? { id: { in: residentIds } }
       : {}),

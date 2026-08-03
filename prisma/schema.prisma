@@ -324,6 +324,12 @@ model Resident {
   id        String    @id @default(uuid())
   tenantId  String
   tenant    Tenant    @relation(fields: [tenantId], references: [id], onDelete: Cascade)
+  // Home the resident lives in. Required by the AFH New Resident Intake Form §1
+  // ("Facility Name"). Nullable so existing records remain valid until backfilled.
+  // Distinct from the externalFacility* columns, which describe referring or
+  // external facilities rather than the resident's own home.
+  facilityId String?   @map("facility_id")
+  facility   Facility? @relation(fields: [facilityId], references: [id], onDelete: SetNull)
   userId    String // User who created the resident
   deletedAt DateTime? // Soft delete timestamp (null = not deleted)
   createdAt DateTime  @default(now())
@@ -484,6 +490,14 @@ model Resident {
 
   // New schema fields (from updated_resident_fields.json)
   residentIdentificationFullLegalName     String?   @map("resident_identification_full_legal_name")
+  // Name parts per AFH New Resident Intake Form §1. Additive: fullLegalName is
+  // retained and auto-composed from these, so existing consumers keep working.
+  residentIdentificationFirstName        String?   @map("resident_identification_first_name")
+  residentIdentificationMiddleName       String?   @map("resident_identification_middle_name")
+  residentIdentificationLastName         String?   @map("resident_identification_last_name")
+  residentIdentificationHeight           String?   @map("resident_identification_height")
+  residentIdentificationWeight           String?   @map("resident_identification_weight")
+  residentIdentificationAboutMe          String?   @map("resident_identification_about_me") @db.Text
   residentIdentificationProfilePicture   String?   @map("resident_identification_profile_picture")
   residentIdentificationPreferredName    String?   @map("resident_identification_preferred_name")
   residentIdentificationDateOfBirth      DateTime? @map("resident_identification_date_of_birth") @db.Date
@@ -501,6 +515,18 @@ model Resident {
   emergencyLegalContactsGuardianPoaName   String?   @map("emergency_legal_contacts_legal_guardian_poa_name")
   emergencyLegalContactsGuardianPoaContactInfo String? @map("emergency_legal_contacts_legal_guardian_poa_contact_info") @db.Text
   emergencyLegalContactsGuardianPoaCopyOnFile Boolean? @map("emergency_legal_contacts_legal_guardian_poa_copy_on_file")
+
+  // AFH New Resident Intake Form §2 — Emergency Contacts & Responsible Party.
+  // Primary contact gains an alternate phone, address and email; the legal
+  // representative gains an explicit type, phone and email. The older generic
+  // GuardianPoaContactInfo column is left untouched for existing records.
+  emergencyLegalContactsPrimaryContactPhoneAlternate String?  @map("emergency_legal_contacts_primary_contact_phone_alternate")
+  emergencyLegalContactsPrimaryContactAddress        String?  @map("emergency_legal_contacts_primary_contact_address") @db.Text
+  emergencyLegalContactsPrimaryContactEmail          String?  @map("emergency_legal_contacts_primary_contact_email")
+  emergencyLegalContactsGuardianPoaType              String?  @map("emergency_legal_contacts_legal_guardian_poa_type")
+  emergencyLegalContactsGuardianPoaPhone             String?  @map("emergency_legal_contacts_legal_guardian_poa_phone")
+  emergencyLegalContactsGuardianPoaEmail             String?  @map("emergency_legal_contacts_legal_guardian_poa_email")
+  emergencyLegalContactsGuardianPoaCopyAttached      Boolean? @map("emergency_legal_contacts_legal_guardian_poa_copy_attached")
   medicalProvidersPrimaryCareProviderName String? @map("medical_providers_health_coverage_primary_care_provider_name")
   medicalProvidersPrimaryCareProviderPhone String? @map("medical_providers_health_coverage_primary_care_provider_phone")
   medicalProvidersMentalHealthProvider   String?   @map("medical_providers_health_coverage_mental_health_provider")
@@ -567,6 +593,8 @@ model Resident {
   @@index([tenantId, createdAt])
   @@index([residentFullLegalName])
   @@index([deletedAt])
+  @@index([facilityId])
+  @@index([tenantId, facilityId])
   @@map("residents")
 }
 
@@ -2104,6 +2132,7 @@ model Facility {
   staffAssignments   StaffFacilityAssignment[]
   qrConfig           FacilityQRConfig?
   appointments       Appointment[]
+  residents          Resident[]
 
   @@index([tenantId])
   @@map("facilities")
