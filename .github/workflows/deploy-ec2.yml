@@ -1,0 +1,202 @@
+name: CI/CD to AWS EC2
+
+on:
+  push:
+    branches:
+      - main
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+
+    env:
+      EC2_HOST: ${{ secrets.EC2_HOST }}
+      EC2_SSH_KEY: ${{ secrets.EC2_SSH_KEY }}
+      EC2_USER: root  # change to 'ec2-user' if using Amazon Linux
+
+    steps:
+      # Checkout repository
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      # Set up SSH key for EC2 access
+      - name: Setup SSH
+        run: |
+          mkdir -p ~/.ssh
+          echo "${EC2_SSH_KEY}" > ~/.ssh/id_rsa
+          chmod 600 ~/.ssh/id_rsa
+          ssh-keyscan -H $EC2_HOST >> ~/.ssh/known_hosts || true
+
+      # Copy project files to EC2 (replace /home/ubuntu/app with your project path)
+      - name: Upload project files to EC2
+        run: |
+          rsync -avz --delete -e "ssh -i ~/.ssh/id_rsa" ./ $EC2_USER@$EC2_HOST:/home/ubuntu/ai-onboarding-platform
+
+      # Build and restart Docker container on EC2
+      - name: Deploy Docker container
+        run: |
+          ssh -i ~/.ssh/id_rsa $EC2_USER@$EC2_HOST << 'EOF'
+            cd /home/ubuntu/ai-onboarding-platform
+
+            echo "📊 Current disk usage:"
+            df -h / | tail -1
+
+            echo "🧹 Cleaning up Docker to free space..."
+            docker stop backend || true
+            docker rm -f backend || true
+            docker stop backend-worker || true
+            docker rm -f backend-worker || true
+            docker image prune -a -f || true
+            docker container prune -f || true
+            docker volume prune -f || true
+            docker builder prune -af || true
+            docker system prune -af --volumes || true
+            # Remove all unused images, not just dangling ones
+            docker images -q | xargs -r docker rmi -f || true
+            
+            echo "🧹 Cleaning npm cache on host..."
+            rm -rf /root/.npm/_cacache || true
+            rm -rf /root/.npm || true
+            rm -rf /tmp/.npm || true
+            rm -rf /tmp/* || true
+            
+            echo "🧹 Cleaning apt cache..."
+            apt-get clean || true
+            apt-get autoclean || true
+            apt-get autoremove -y || true
+            rm -rf /var/cache/apt/archives/* || true
+            rm -rf /var/lib/apt/lists/* || true
+            
+            echo "🧹 Cleaning system logs..."
+            journalctl --vacuum-time=1d || true
+            rm -rf /var/log/*.gz || true
+            rm -rf /var/log/*.log.* || true
+            
+            echo "🧹 Cleaning temporary files..."
+            rm -rf /tmp/* || true
+            rm -rf /var/tmp/* || true
+            
+            echo "🧹 Removing old kernel packages..."
+            apt-get autoremove -y --purge || true
+            apt-get autoclean || true
+            
+            echo "🧹 Cleaning Docker completely..."
+            # Stop all containers
+            docker ps -aq | xargs -r docker stop || true
+            docker ps -aq | xargs -r docker rm -f || true
+            # Remove all images
+            docker images -aq | xargs -r docker rmi -f || true
+            # Remove all volumes
+            docker volume ls -q | xargs -r docker volume rm -f || true
+            # Prune everything
+            docker system prune -af --volumes || true
+            docker builder prune -af || true
+            
+            echo "📊 Disk usage after cleanup:"
+            df -h / | tail -1
+
+            echo "🔨 Building new Docker image..."
+            # Clean Docker build cache before building
+            docker builder prune -af || true
+            # Check disk space before build
+            echo "📊 Disk space before build:"
+            df -h / | tail -1
+            if ! docker build -t backend .; then
+              echo "❌ Docker build failed!"
+              echo "📊 Current disk usage:"
+              df -h / | tail -1
+              exit 1
+            fi
+
+            echo "🚀 Starting API container..."
+            # If this fails with "invalid env file ... variable ... contains whitespaces", see docs/ENV_DOCKER_FORMAT.md — multi-line values in .env must be single-line with \n.
+            #
+            # When REDIS_URL or REDIS_URI is set: NCP jobs use BullMQ — API must not embed the worker (START_NCP_WORKER_IN_API=false),
+            # and a second container runs `npm run start:worker` from the same image.
+            # Without Redis, NCP falls back to an in-memory queue on the API process — do not disable the embedded worker.
+            REDIS_SET=false
+            # Must be in /home/ubuntu/.env on EC2 (not only local .env). Allows optional leading whitespace. Ignores commented lines.
+            if grep -qE '^[[:space:]]*REDIS_URL=|^[[:space:]]*REDIS_URI=' /home/ubuntu/.env 2>/dev/null; then
+              if ! grep -qE '^[[:space:]]*#.*REDIS_(URL|URI)=' /home/ubuntu/.env 2>/dev/null || grep -qE '^[[:space:]]*REDIS_(URL|URI)=' /home/ubuntu/.env 2>/dev/null; then
+                REDIS_SET=true
+              fi
+            fi
+            # Simpler: any non-comment line setting REDIS_URL or REDIS_URI
+            if grep -qE '^[[:space:]]*(REDIS_URL|REDIS_URI)=' /home/ubuntu/.env 2>/dev/null; then
+              REDIS_SET=true
+            fi
+
+            if [ "$REDIS_SET" = true ]; then
+              echo "📌 Redis detected — API without embedded NCP worker; starting standalone worker container."
+              docker run -d -p 4000:4000 \
+                --env-file /home/ubuntu/.env \
+                -e START_NCP_WORKER_IN_API=false \
+                --restart unless-stopped \
+                --name backend \
+                backend
+              echo "🚀 Starting NCP worker container..."
+              docker run -d \
+                --env-file /home/ubuntu/.env \
+                --restart unless-stopped \
+                --name backend-worker \
+                backend \
+                npm run start:worker
+            else
+              echo "📌 No REDIS_URL/REDIS_URI — NCP uses in-process fallback; worker container skipped."
+              docker run -d -p 4000:4000 \
+                --env-file /home/ubuntu/.env \
+                --restart unless-stopped \
+                --name backend \
+                backend
+            fi
+
+            echo "⏳ Waiting for container to start..."
+            sleep 10
+
+            echo "🔍 Checking container status..."
+            if ! docker ps | grep -q backend; then
+              echo "❌ API container is not running!"
+              echo "📋 Container logs:"
+              docker logs backend --tail 100 2>/dev/null || true
+              echo "💡 If docker run failed with 'invalid env file ... variable ... contains whitespaces', fix /home/ubuntu/.env: use single-line values; for multi-line keys use \\n — see docs/ENV_DOCKER_FORMAT.md"
+              exit 1
+            fi
+
+            if [ "$REDIS_SET" = true ]; then
+              echo "🔍 Checking worker container..."
+              sleep 2
+              if ! docker ps | grep -q backend-worker; then
+                echo "❌ Worker container is not running!"
+                docker logs backend-worker --tail 80 2>/dev/null || true
+                exit 1
+              fi
+              echo "✅ Worker container is running."
+            fi
+
+            echo "🔄 Pushing Prisma schema to database..."
+            if ! docker exec backend npx prisma db push --accept-data-loss; then
+              echo "⚠️ Prisma db push failed, but continuing deployment..."
+              echo "📋 Container logs:"
+              docker logs backend --tail 50
+            else
+              echo "✅ Prisma schema pushed successfully!"
+            fi
+
+            echo "🏥 Testing health endpoint..."
+            for i in $(seq 1 10); do
+              if curl -f -s http://localhost:4000/health > /dev/null; then
+                echo "✅ Health check passed!"
+                break
+              fi
+              if [ $i -eq 10 ]; then
+                echo "❌ Health check failed after 10 attempts!"
+                echo "📋 Container logs:"
+                docker logs backend --tail 100
+                exit 1
+              fi
+              echo "⏳ Waiting for health check (attempt $i/10)..."
+              sleep 3
+            done
+            
+            echo "✅ Deployment completed successfully!"
+          EOF

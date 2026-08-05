@@ -1,0 +1,958 @@
+{
+  "properties": {
+    "provider_name": {
+      "type": "string",
+      "description": "Name of the Adult Family Home provider"
+    },
+    "date_ncp_started": {
+      "type": "string",
+      "description": "Date the NCP was started (format: MM/DD/YYYY)"
+    },
+    "moved_in_date": {
+      "type": "string",
+      "description": "Date the resident moved in (format: MM/DD/YYYY)"
+    },
+    "date_completed": {
+      "type": "string",
+      "description": "Date NCP was completed (format: MM/DD/YYYY)"
+    },
+    "date_discharged": {
+      "type": "string",
+      "description": "Discharge date if applicable (format: MM/DD/YYYY)"
+    },
+
+    "resident_name": {
+      "type": "string",
+      "description": "Full name of the resident"
+    },
+    "resident_pronouns": {
+      "type": "string",
+      "description": "Resident's preferred pronouns"
+    },
+    "date_of_birth": {
+      "type": "string",
+      "description": "Resident's date of birth (format: MM/DD/YYYY)"
+    },
+    "age": { "type": "string", "description": "Resident's age" },
+    "primary_language": {
+      "type": "string",
+      "description": "Resident's primary language"
+    },
+    "speaks_english": {
+      "type": "string",
+      "enum": ["Yes", "No"],
+      "description": "Does resident speak English?"
+    },
+    "interpreter_needed": {
+      "type": "string",
+      "enum": ["Yes", "No"],
+      "description": "Is interpreter needed?"
+    },
+    "all_allergies": {
+      "type": "string",
+      "description": "All allergies (substance: reaction, separated by semicolons)"
+    },
+
+    "legal_docs_none": {
+      "type": "string",
+      "enum": ["X", ""],
+      "description": "No legal documents checkbox"
+    },
+    "legal_docs_advanced_directives": {
+      "type": "string",
+      "enum": ["X", ""],
+      "description": "Has Advanced Directives checkbox"
+    },
+    "legal_docs_polst": {
+      "type": "string",
+      "enum": ["X", ""],
+      "description": "Has POLST Form checkbox"
+    },
+    "legal_docs_other": {
+      "type": "string",
+      "description": "Other legal documents description"
+    },
+
+    "specialty_needs_none": {
+      "type": "string",
+      "enum": ["X", ""],
+      "description": "No specialty needs checkbox"
+    },
+    "specialty_needs_dementia": {
+      "type": "string",
+      "enum": ["X", ""],
+      "description": "Dementia checkbox"
+    },
+    "specialty_needs_mental_health": {
+      "type": "string",
+      "enum": ["X", ""],
+      "description": "Mental Health checkbox"
+    },
+    "specialty_needs_developmental_disability": {
+      "type": "string",
+      "enum": ["X", ""],
+      "description": "Developmental Disability checkbox"
+    },
+    "specialty_needs_other": {
+      "type": "string",
+      "description": "Other specialty needs description"
+    },
+
+    "evacuation_none_independent": {
+      "type": "string",
+      "enum": ["X", ""],
+      "description": "No assistance - resident is independent"
+    },
+    "evacuation_assistance_required": {
+      "type": "string",
+      "enum": ["X", ""],
+      "description": "Assistance required for evacuation"
+    },
+    "evacuation_safety_instructions": {
+      "type": "string",
+      "description": "Resident's evacuation and safety instructions"
+    },
+
+    "caregiver_evacuation_actions": {
+      "type": "string",
+      "description": "Specific actions the caregiver will take to assist the resident during an emergency evacuation (e.g., 'assist resident into wheelchair', 'provide physical standby assist', 'guide resident by the arm'). Generate this based on the resident's mobility status and specific needs."
+    },
+    "comm_modes_of_expression": {
+      "type": "string",
+      "description": "The primary ways the resident expresses themselves (e.g., 'Verbal', 'Gestures', 'Written notes', 'Communication board', 'Sign Language')."
+    },
+    "comm_how_understands_others": {
+      "type": "string",
+      "description": "How the resident comprehends information and communication from others (e.g., 'Understands spoken English clearly', 'Relies on lip reading', 'Requires short, simple sentences', 'Needs visual cues')."
+    },
+    "comm_expression_assistance_instructions": {
+      "type": "string",
+      "description": "Specific assistance required and caregiver instructions regarding the resident's communication and understanding. This must include Who, How, and When/How Often (e.g., 'Caregiver will ensure resident is wearing hearing aids before speaking to them daily', 'Caregiver will use a communication board when the resident is frustrated, as needed')."
+    },
+    "comm_preferred_language": {
+      "type": "string",
+      "description": "The resident's preferred language for daily communication."
+    },
+    "comm_comments": {
+      "type": "string",
+      "description": "Any additional comments or notes regarding the resident's communication, hearing, or vision needs."
+    },
+    "comm_strength_abilities_details": {
+      "type": "string",
+      "description": "Detailed description of the resident's strengths, abilities, and what they prefer to do independently regarding hearing, vision, and phone use."
+    },
+    "comm_caregiver_actions": {
+      "type": "string",
+      "description": "Specific actions the caregiver will take to assist the resident with hearing, vision, or phone use (e.g., 'Caregiver will clean glasses daily', 'Caregiver will help dial phone numbers as requested')."
+    },
+
+    "med_strengths_abilities": {
+      "type": "string",
+      "description": "Resident's strengths, abilities, and what they prefer to do independently regarding their medications (e.g., 'Resident can swallow pills whole without applesauce', 'Resident knows their medication schedule but needs help opening bottles')."
+    },
+    "med_assistance_reason": {
+      "type": "string",
+      "description": "The specific medical, cognitive, or physical reason why the resident requires the specified level of medication assistance (e.g., 'Resident has short-term memory loss and forgets to take medication', 'Resident has severe arthritis and cannot open pill bottles', 'Resident is visually impaired and cannot read prescription labels')."
+    },
+    "med_caregiver_actions": {
+      "type": "string",
+      "description": "Specific, actionable instructions for the caregiver regarding medication assistance or administration. Must include Who, How, and When/How Often (e.g., 'Caregiver will administer all oral medications daily at 8 AM and 8 PM using a med cup', 'Caregiver will apply topical cream to the resident's lower legs every evening after showering')."
+    },
+
+    "med_out_of_afh_strengths": {
+      "type": "string",
+      "description": "Resident's strengths and abilities regarding medications when they are away from the Adult Family Home (e.g., 'Resident can take pre-packaged pills independently', 'Resident's daughter manages medications during outings')."
+    },
+    "med_out_of_afh_caregiver_actions": {
+      "type": "string",
+      "description": "Specific actions the caregiver will take when the resident leaves the facility (e.g., 'Caregiver will prepare an envelope with the correct doses and hand it to the resident/family', 'Caregiver will document out-of-facility administration in the MAR')."
+    },
+
+    "current_medical_diagnoses": {
+      "type": "string",
+      "description": "List of current medical diagnoses"
+    },
+
+    "med_refusal_strengths": {
+      "type": "string",
+      "description": "Resident's strengths, abilities, and preferences regarding their right to refuse medication (e.g., 'Resident can clearly articulate when and why they do not want to take a specific medication')."
+    },
+    "med_refusal_caregiver_actions": {
+      "type": "string",
+      "description": "Specific, actionable steps the caregiver will take if the resident refuses medication (e.g., 'Caregiver will wait 15 minutes and offer again. If refused a second time, caregiver will document in the MAR and notify the RN delegator')."
+    },
+    "health_strengths_abilities": {
+      "type": "string",
+      "description": "Resident's strengths, abilities, and preferences regarding tracking their overall health indicators, such as pain management, weight, and vital signs (e.g., 'Resident can report pain levels accurately using a 1-10 scale', 'Resident is able to step onto the scale independently')."
+    },
+    "health_assistance_required": {
+      "type": "string",
+      "description": "Specific caregiver instructions for monitoring the resident's health indicators, managing pain, tracking weight, and taking vital signs. Must include Who, How, and When/How Often (e.g., 'Caregiver will weigh resident weekly on Sunday mornings', 'Caregiver will check blood pressure daily before morning meds')."
+    },
+
+    "treatment_strengths_abilities_1": {
+      "type": "string",
+      "description": "Resident's strengths, abilities, and preferences regarding oxygen use, dialysis, blood thinners, or INR/Labs (e.g., 'Resident can adjust their own oxygen cannula', 'Resident attends dialysis independently')."
+    },
+    "treatment_caregiver_actions_1": {
+      "type": "string",
+      "description": "Specific, actionable steps the caregiver will take to assist with oxygen, dialysis, blood thinners, or INR/Labs. Must include Who, How, and When/How Often (e.g., 'Caregiver will check oxygen tank levels daily', 'Caregiver will transport resident to dialysis center every Tuesday and Thursday')."
+    },
+    "treatment_strengths_abilities_2": {
+      "type": "string",
+      "description": "Resident's strengths, abilities, and preferences regarding anticoagulation, blood glucose monitoring, injections, CPAP/BiPAP, nebulizers, or range of motion exercises (e.g., 'Resident can test their own blood sugar', 'Resident can put on their CPAP mask at night')."
+    },
+    "treatment_caregiver_actions_2": {
+      "type": "string",
+      "description": "Specific, actionable steps the caregiver will take to assist with anticoagulation, blood glucose, injections, CPAP/BiPAP, nebulizers, or range of motion. Must include Who, How, and When/How Often (e.g., 'Caregiver will clean CPAP machine weekly', 'Caregiver will assist with range of motion exercises for 15 minutes every morning')."
+    },
+
+    "treatment_enablers_strengths": {
+      "type": "string",
+      "description": "Resident's strengths, abilities, and preferences regarding the use of physical enablers (e.g., 'Resident is able to use bed rails independently to reposition themselves in bed')."
+    },
+    "treatment_enablers_actions": {
+      "type": "string",
+      "description": "Specific, actionable steps the caregiver will take to assist the resident with physical enablers. Must include Who, How, and When/How Often (e.g., 'Caregiver will ensure bed rails are securely locked in the up position every night before bed')."
+    },
+    "treatment_refusal_strengths": {
+      "type": "string",
+      "description": "Resident's strengths, abilities, and preferences regarding their right to refuse treatments, programs, or therapies (e.g., 'Resident can clearly voice their choice to skip physical therapy when feeling too fatigued')."
+    },
+    "treatment_refusal_actions": {
+      "type": "string",
+      "description": "Specific, actionable steps the caregiver will take if the resident refuses a scheduled treatment, program, or therapy (e.g., 'Caregiver will respect the refusal, document it in the resident's chart, and notify the RN Delegator and PCP within 24 hours')."
+    },
+
+    "psych_sleep_strengths": {
+      "type": "string",
+      "description": "Resident's strengths, abilities, and personal preferences regarding their sleep schedule and habits (e.g., 'Resident prefers to sleep with a fan on and the door slightly open', 'Resident usually sleeps through the night without issues')."
+    },
+    "psych_sleep_assistance": {
+      "type": "string",
+      "description": "Specific assistance required and actionable caregiver instructions for nighttime or sleep disturbances. Must include Who, How, and When/How Often (e.g., 'Caregiver will assist resident to the restroom once per night around 2 AM', 'Caregiver will check on resident every 2 hours if sleep disturbance is noted')."
+    },
+    "psych_dshs_meaningful_day": {
+      "type": "string",
+      "enum": ["X", " "],
+      "description": "Check if resident is in the DSHS Meaningful Day program."
+    },
+    "psych_dshs_ecs": {
+      "type": "string",
+      "enum": ["X", " "],
+      "description": "Check if resident is in Expanded Community Services (HCS ONLY)."
+    },
+    "psych_dshs_sbs": {
+      "type": "string",
+      "enum": ["X", " "],
+      "description": "Check if resident is in Specialized Behavior Services (HCS ONLY)."
+    },
+    "psych_dshs_mhp": {
+      "type": "string",
+      "enum": ["X", " "],
+      "description": "Check if resident has a Mental Health Provider/Program."
+    },
+    "psych_dshs_contact_info": {
+      "type": "string",
+      "description": "Contact information for the DSHS Specialized Behavioral Program or Mental Health Provider."
+    },
+    "psych_dshs_programs_strengths": {
+      "type": "string",
+      "description": "Resident's strengths, abilities, and preferences regarding their specialized behavioral programs (e.g., 'Resident engages well during Meaningful Day activities')."
+    },
+    "psych_dshs_programs_assistance": {
+      "type": "string",
+      "description": "Specific caregiver instructions and assistance required to support the resident's behavioral programs (e.g., 'Caregiver will ensure resident is ready for the Meaningful Day transport at 8:30 AM daily')."
+    },
+    "psych_interventions_strengths": {
+      "type": "string",
+      "description": "Resident's strengths and preferences regarding other behavioral interventions (e.g., 'Resident responds well to 1-on-1 redirection')."
+    },
+    "psych_interventions_assistance": {
+      "type": "string",
+      "description": "Specific caregiver actions and interventions for behavioral support (e.g., 'Caregiver will offer a quiet space and a cup of tea when resident becomes overstimulated')."
+    },
+    "psych_typical_day_narrative": {
+      "type": "string",
+      "description": "A descriptive narrative of what a typical day looks like for the resident, including their routines, preferred activities, wake/sleep times, and general disposition."
+    },
+    "universal_precautions_strengths": {
+      "type": "string",
+      "description": "Resident's strengths, abilities, and preferences regarding universal precautions and infection control (e.g., 'Resident is able to wash their own hands thoroughly', 'Resident is compliant with wearing a mask when leaving the facility')."
+    },
+    "universal_precautions_assistance": {
+      "type": "string",
+      "description": "Specific assistance required from the caregiver regarding universal precautions, infection control, and any special precautions. Must include Who, How, and When/How Often (e.g., 'Caregiver will prompt resident to use hand sanitizer before meals', 'Caregiver will assist resident with putting on a clean mask before medical appointments')."
+    },
+    "adl_functional_limitations": {
+      "type": "string",
+      "description": "A general summary of the resident's medical or physical limitations that impact their ability to perform daily activities (e.g., 'Right-sided weakness due to stroke', 'Severe osteoarthritis in knees limiting standing', 'Short-term memory loss causing sequence confusion')."
+    },
+    "mobility_strengths_abilities": {
+      "type": "string",
+      "description": "Resident's specific strengths, abilities, and preferences regarding ambulation and mobility (e.g., 'Resident can walk up to 50 feet independently using a rollator walker', 'Resident can pivot transfer from bed to wheelchair')."
+    },
+    "mobility_caregiver_actions": {
+      "type": "string",
+      "description": "Specific assistance required from the caregiver regarding ambulation and mobility. Must include Who, How, and When/How Often (e.g., 'Caregiver will provide standby assist when resident walks to the dining room for all meals', 'Caregiver will propel resident in wheelchair for outings outside the facility')."
+    },
+    "mobility_equipment_vendor": {
+      "type": "string",
+      "description": "The name of the vendor or supplier providing the resident's mobility equipment/supplies (e.g., 'Norco Medical', 'Bellevue Healthcare'). Leave blank if not applicable."
+    },
+    "mobility_limitations": {
+      "type": "string",
+      "description": "Specific physical limitations or restrictions the resident has related to ambulation and mobility (e.g., 'Cannot bear weight on left leg', 'Fatigues easily after walking 20 feet')."
+    },
+    "bed_mobility_strengths_abilities": {
+      "type": "string",
+      "description": "Resident's strengths, abilities, and preferences regarding bed mobility and transferring (e.g., 'Resident is able to roll side-to-side independently', 'Resident can assist with pivot transfer by bearing weight on both legs')."
+    },
+    "bed_mobility_caregiver_actions": {
+      "type": "string",
+      "description": "Specific actionable assistance required from the caregiver regarding bed mobility, transferring, and repositioning. Must include Who, How, and When/How Often (e.g., 'Caregiver will provide one-person physical assist using a gait belt for all transfers out of bed', 'Caregiver will assist resident in turning every 2 hours during the night')."
+    },
+    "mobility_nighttime_equipment": {
+      "type": "string",
+      "description": "Specific equipment or supplies needed for the resident's nighttime care and mobility (e.g., 'bed alarms', 'urinal', 'bedside commode'). Leave blank if not applicable."
+    },
+    "eating_strengths_abilities": {
+      "type": "string",
+      "description": "Resident's strengths, abilities, and preferences regarding eating and drinking (e.g., 'Resident can feed themselves using regular utensils', 'Resident enjoys drinking coffee with breakfast')."
+    },
+    "eating_caregiver_actions": {
+      "type": "string",
+      "description": "Specific assistance required from the caregiver regarding eating and meals. Must include Who, How, and When/How Often (e.g., 'Caregiver will cut meat into bite-sized pieces for all meals', 'Caregiver will prompt and encourage resident to drink fluids with every meal')."
+    },
+    "toileting_strengths_abilities": {
+      "type": "string",
+      "description": "Resident's strengths, abilities, and preferences regarding toileting and continence management (e.g., 'Resident can use the toilet independently during the day', 'Resident prefers privacy while using the bedside commode')."
+    },
+    "toileting_caregiver_actions": {
+      "type": "string",
+      "description": "Specific assistance required from the caregiver regarding toileting and continence care. Must include Who, How, and When/How Often (e.g., 'Caregiver will assist resident with changing incontinence briefs every 2 hours and PRN', 'Caregiver will provide standby assist for all transfers to the toilet')."
+    },
+    "dressing_strengths_abilities": {
+      "type": "string",
+      "description": "Resident's strengths, abilities, and preferences regarding dressing and undressing (e.g., 'Resident can choose their own outfits and dress their upper body independently', 'Resident prefers wearing loose-fitting sweatpants')."
+    },
+    "dressing_caregiver_actions": {
+      "type": "string",
+      "description": "Specific assistance required from the caregiver regarding dressing. Must include Who, How, and When/How Often (e.g., 'Caregiver will assist resident with putting on socks and shoes daily', 'Caregiver will provide standby assist while resident dresses lower body every morning')."
+    },
+    "hygiene_strengths_abilities": {
+      "type": "string",
+      "description": "Resident's strengths, abilities, and preferences regarding personal hygiene (e.g., 'Resident can brush their own teeth if supplies are set up', 'Resident prefers to shave every morning after breakfast')."
+    },
+    "hygiene_caregiver_actions": {
+      "type": "string",
+      "description": "Specific assistance required from the caregiver regarding personal hygiene. Must include Who, How, and When/How Often (e.g., 'Caregiver will provide standby assist while resident washes their face and hands daily', 'Caregiver will brush and style resident's hair every morning')."
+    },
+    "skin_care_strengths_abilities": {
+      "type": "string",
+      "description": "Resident's strengths, abilities, and preferences regarding skin care (e.g., 'Resident can apply daily lotion to their face and arms independently', 'Resident is proactive in reporting any new skin tears or areas of redness')."
+    },
+    "skin_care_caregiver_actions": {
+      "type": "string",
+      "description": "Specific assistance required from the caregiver regarding skin care. Must include Who, How, and When/How Often (e.g., 'Caregiver will apply barrier cream to the perineal area with every brief change', 'Caregiver will inspect skin daily during dressing and bathing for any signs of breakdown')."
+    },
+    "iadl_finances_strengths_abilities": {
+      "type": "string",
+      "description": "Resident's strengths, abilities, and preferences regarding managing their finances (e.g., 'Resident can manage small amounts of pocket money', 'Resident understands basic purchases but cannot write checks')."
+    },
+    "iadl_finances_caregiver_actions": {
+      "type": "string",
+      "description": "Specific assistance required from the caregiver regarding finances. Must include Who, How, and When/How Often (e.g., 'Caregiver will safeguard resident's wallet in the lockbox and provide $10 weekly for outings', 'Caregiver will give all mail and bills directly to the DPOA')."
+    },
+    "iadl_shopping_strengths_abilities": {
+      "type": "string",
+      "description": "Resident's strengths, abilities, and preferences regarding shopping (e.g., 'Resident enjoys picking out their own snacks at the grocery store', 'Resident is able to push the shopping cart')."
+    },
+    "iadl_shopping_caregiver_actions": {
+      "type": "string",
+      "description": "Specific assistance required from the caregiver regarding shopping. Must include Who, How, and When/How Often (e.g., 'Caregiver will take resident grocery shopping every Wednesday morning', 'Caregiver will purchase all personal care items for the resident monthly')."
+    },
+    "iadl_transportation_strengths_abilities": {
+      "type": "string",
+      "description": "Resident's strengths, abilities, and preferences regarding transportation (e.g., 'Resident can safely ride in the passenger seat of a standard vehicle', 'Resident likes to listen to classical music during car rides')."
+    },
+    "iadl_transportation_caregiver_actions": {
+      "type": "string",
+      "description": "Specific assistance required from the caregiver regarding transportation. Must include Who, How, and When/How Often (e.g., 'Caregiver will drive resident to and from all medical appointments as needed', 'Caregiver will arrange for paratransit services for Adult Day Health')."
+    },
+    "activities_social_strengths_abilities": {
+      "type": "string",
+      "description": "Resident's strengths, abilities, and preferences regarding social activities, cultural traditions, hobbies, and family interactions (e.g., 'Resident enjoys playing bingo and attending Sunday church services', 'Resident is highly social and initiates conversations')."
+    },
+    "activities_social_caregiver_actions": {
+      "type": "string",
+      "description": "Specific assistance required from the caregiver regarding daily activities and social engagement. Must include Who, How, and When/How Often (e.g., 'Caregiver will prompt resident to join group activities at 2 PM daily', 'Caregiver will help resident set up video calls with family every Sunday')."
+    },
+    "activities_social_special_arrangements": {
+      "type": "string",
+      "description": "Any special arrangements needed for the resident to participate in social activities (e.g., 'Requires large-print playing cards', 'Needs a quiet environment to prevent overstimulation during group events'). Leave blank if none."
+    },
+    "activities_social_participation_assistance": {
+      "type": "string",
+      "description": "Specific assistance required to help the resident actively participate (e.g., 'Requires 1-on-1 assistance to stay on task during crafts', 'Needs physical escort to and from the activity room')."
+    },
+    "activity_narrative": {
+      "type": "string",
+      "description": "A descriptive narrative summarizing the resident's overall activity preferences, social engagement style, and typical daily routines."
+    },
+    "safety_smoking_strengths_abilities": {
+      "type": "string",
+      "description": "Resident's strengths, abilities, and preferences regarding smoking (e.g., 'Resident is able to smoke independently', 'Resident complies with the facility's outdoor-only smoking policy'). Leave blank if resident does not smoke."
+    },
+    "safety_smoking_caregiver_actions": {
+      "type": "string",
+      "description": "Specific assistance required from the caregiver regarding smoking and safety. Must include Who, How, and When/How Often (e.g., 'Caregiver will store resident's cigarettes and lighter in the lockbox and provide them only during designated smoke breaks', 'Caregiver will provide a smoking apron and standby assist during all smoke breaks')."
+    },
+    "sig_resident_recommendations": {
+      "type": "string",
+      "description": "Any specific recommendations, feedback, or changes the resident requested regarding the care plan when it was discussed or read to them. Leave blank if the resident had no recommendations."
+    },
+
+    "contact_1_name": { "type": "string" },
+    "contact_1_relationship": { "type": "string" },
+    "contact_1_home_phone": { "type": "string" },
+    "contact_1_cell_fax": { "type": "string" },
+    "contact_1_address_email": { "type": "string" },
+
+    "contact_2_name": { "type": "string" },
+    "contact_2_relationship": { "type": "string" },
+    "contact_2_home_phone": { "type": "string" },
+    "contact_2_cell_fax": { "type": "string" },
+    "contact_2_address_email": { "type": "string" },
+
+    "contact_3_name": { "type": "string" },
+    "contact_3_relationship": { "type": "string" },
+    "contact_3_home_phone": { "type": "string" },
+    "contact_3_cell_fax": { "type": "string" },
+    "contact_3_address_email": { "type": "string" },
+
+    "contact_4_name": { "type": "string" },
+    "contact_4_relationship": { "type": "string" },
+    "contact_4_home_phone": { "type": "string" },
+    "contact_4_cell_fax": { "type": "string" },
+    "contact_4_address_email": { "type": "string" },
+
+    "contact_5_name": { "type": "string" },
+    "contact_5_relationship": { "type": "string" },
+    "contact_5_home_phone": { "type": "string" },
+    "contact_5_cell_fax": { "type": "string" },
+    "contact_5_address_email": { "type": "string" },
+
+    "contact_6_name": { "type": "string" },
+    "contact_6_relationship": { "type": "string" },
+    "contact_6_home_phone": { "type": "string" },
+    "contact_6_cell_fax": { "type": "string" },
+    "contact_6_address_email": { "type": "string" },
+
+    "comm_problems_expression": {
+      "type": "string",
+      "enum": ["Yes", "No"],
+      "description": "Problems with mode of expression"
+    },
+    "comm_expression_describe": {
+      "type": "string",
+      "description": "Description of expression problems"
+    },
+    "comm_expression_equipment": {
+      "type": "string",
+      "description": "Expression equipment"
+    },
+    "comm_problems_hearing": {
+      "type": "string",
+      "enum": ["Yes", "No"],
+      "description": "Problems with hearing"
+    },
+    "comm_hearing_describe": {
+      "type": "string",
+      "description": "Description of hearing problems"
+    },
+    "comm_hearing_equipment": {
+      "type": "string",
+      "description": "Hearing equipment"
+    },
+    "comm_problems_vision": {
+      "type": "string",
+      "enum": ["Yes", "No"],
+      "description": "Problems with vision"
+    },
+    "comm_vision_describe": {
+      "type": "string",
+      "description": "Description of vision problems"
+    },
+    "comm_vision_equipment": {
+      "type": "string",
+      "description": "Vision equipment"
+    },
+    "comm_phone_ability": {
+      "type": "string",
+      "enum": ["Independent", "Assistance Needed", "Dependent"]
+    },
+    "comm_resident_phone_number": { "type": "string" },
+    "comm_how_makes_self_understood": { "type": "string" },
+    "comm_strengths_abilities": { "type": "string" },
+    "comm_assistance_required": { "type": "string" },
+
+    "med_allergies": {
+      "type": "string",
+      "description": "Medication allergies"
+    },
+    "med_needs_multiple_assistance": { "type": "string", "enum": ["X", ""] },
+    "med_prescribed_psychopharmacologic": {
+      "type": "string",
+      "enum": ["X", ""]
+    },
+    "med_ordered_by": { "type": "string" },
+    "med_delivered_by": { "type": "string" },
+    "med_pharmacy_packed": { "type": "string", "enum": ["X", ""] },
+    "med_self_administration": { "type": "string", "enum": ["X", ""] },
+    "med_self_admin_with_assistance": { "type": "string", "enum": ["X", ""] },
+    "med_medication_administration": { "type": "string", "enum": ["X", ""] },
+    "med_type_oral": { "type": "string", "enum": ["X", ""] },
+    "med_type_topical": { "type": "string", "enum": ["X", ""] },
+    "med_type_eye_drops": { "type": "string", "enum": ["X", ""] },
+    "med_type_inhalers": { "type": "string", "enum": ["X", ""] },
+    "med_type_sprays": { "type": "string", "enum": ["X", ""] },
+    "med_injection_by_resident": { "type": "string", "enum": ["X", ""] },
+    "med_injection_by_surrogate": { "type": "string", "enum": ["X", ""] },
+    "med_injection_by_family": { "type": "string", "enum": ["X", ""] },
+    "med_injection_by_licensed_professional": {
+      "type": "string",
+      "enum": ["X", ""]
+    },
+    "med_injection_by_qualified_cg": { "type": "string", "enum": ["X", ""] },
+    "med_allergy_kits": { "type": "string", "enum": ["X", ""] },
+    "med_suppositories": { "type": "string", "enum": ["X", ""] },
+    "med_type_other": { "type": "string" },
+    "med_requires_nurse_delegation": { "type": "string", "enum": ["X", ""] },
+    "med_rn_delegator_name": { "type": "string" },
+    "med_rn_delegator_phone": { "type": "string" },
+    "med_rn_delegator_fax": { "type": "string" },
+    "med_rn_delegator_email": { "type": "string" },
+    "med_equipment": { "type": "string" },
+    "med_assistance_required": { "type": "string" },
+    "med_plan_when_not_in_afh": { "type": "string" },
+    "med_refusal_plan": { "type": "string" },
+
+    "health_pain": { "type": "string", "enum": ["X", ""] },
+    "health_pain_impact": { "type": "string" },
+    "health_weight_loss_gain": { "type": "string", "enum": ["X", ""] },
+    "health_current_weight": { "type": "string" },
+    "health_current_height": { "type": "string" },
+    "health_vital_signs": { "type": "string", "enum": ["X", ""] },
+    "health_hospitalization_emergency": { "type": "string", "enum": ["X", ""] },
+    "health_other": { "type": "string" },
+
+    "allergy_substance_1": { "type": "string" },
+    "allergy_reaction_1": { "type": "string" },
+    "allergy_substance_2": { "type": "string" },
+    "allergy_reaction_2": { "type": "string" },
+    "allergy_substance_3": { "type": "string" },
+    "allergy_reaction_3": { "type": "string" },
+
+    "treat_oxygen_use": { "type": "string", "enum": ["X", ""] },
+    "treat_oxygen_vendor": { "type": "string" },
+    "treat_dialysis": { "type": "string", "enum": ["X", ""] },
+    "treat_dialysis_provider": { "type": "string" },
+    "treat_blood_thinners": { "type": "string", "enum": ["X", ""] },
+    "treat_inr_lab_provider": { "type": "string" },
+    "treat_easily_bruised": { "type": "string", "enum": ["X", ""] },
+    "treat_blood_glucose_monitoring": { "type": "string", "enum": ["X", ""] },
+    "treat_injection": { "type": "string", "enum": ["X", ""] },
+    "treat_cpap_bipap": { "type": "string", "enum": ["X", ""] },
+    "treat_nebulizer": { "type": "string", "enum": ["X", ""] },
+    "treat_range_of_motion": { "type": "string", "enum": ["X", ""] },
+    "treat_pt_ot_st": { "type": "string", "enum": ["X", ""] },
+    "treat_nurse_delegation": { "type": "string", "enum": ["X", ""] },
+    "treat_nurse_delegation_tasks": { "type": "string" },
+    "treat_other": { "type": "string" },
+    "treat_home_health": { "type": "string", "enum": ["X", ""] },
+    "treat_adult_day_health": { "type": "string", "enum": ["X", ""] },
+    "treat_hospice": { "type": "string", "enum": ["X", ""] },
+    "treat_hospice_agency": { "type": "string" },
+    "treat_hospice_plan": { "type": "string", "enum": ["X", ""] },
+    "treat_program_other": { "type": "string" },
+    "treat_meaningful_day": { "type": "string", "enum": ["X", ""] },
+    "treat_physical_enablers": { "type": "string" },
+    "treat_refusal_plan": { "type": "string" },
+    "treat_strengths_abilities": { "type": "string" },
+    "treat_assistance_required": { "type": "string" },
+
+    "psych_sleep_disturbance": { "type": "string", "enum": ["X", ""] },
+    "psych_nighttime_assistance": { "type": "string", "enum": ["X", ""] },
+    "psych_memory_short_term": { "type": "string", "enum": ["X", ""] },
+    "psych_memory_long_term": { "type": "string", "enum": ["X", ""] },
+    "psych_oriented_to_person": { "type": "string", "enum": ["X", ""] },
+    "psych_impaired_decision_making": { "type": "string", "enum": ["X", ""] },
+    "psych_disruptive_behavior": { "type": "string", "enum": ["X", ""] },
+    "psych_assaultive": { "type": "string", "enum": ["X", ""] },
+    "psych_resistive_to_care": { "type": "string", "enum": ["X", ""] },
+    "psych_depression": { "type": "string", "enum": ["X", ""] },
+    "psych_anxiety": { "type": "string", "enum": ["X", ""] },
+    "psych_irritability": { "type": "string", "enum": ["X", ""] },
+    "psych_disorientation": { "type": "string", "enum": ["X", ""] },
+    "psych_wandering_pacing": { "type": "string", "enum": ["X", ""] },
+    "psych_exit_seeking": { "type": "string", "enum": ["X", ""] },
+    "psych_hallucinations": { "type": "string", "enum": ["X", ""] },
+    "psych_delusions": { "type": "string", "enum": ["X", ""] },
+    "psych_verbally_aggressive": { "type": "string", "enum": ["X", ""] },
+    "psych_physically_aggressive": { "type": "string", "enum": ["X", ""] },
+    "psych_inappropriate_unsafe_behavior": {
+      "type": "string",
+      "enum": ["X", ""]
+    },
+    "psych_suicidal_ideation": { "type": "string", "enum": ["X", ""] },
+    "psych_difficulty_new_situations": { "type": "string", "enum": ["X", ""] },
+    "psych_disrobing": { "type": "string", "enum": ["X", ""] },
+    "psych_weeping_crying": { "type": "string", "enum": ["X", ""] },
+    "psych_unaware_consequences": { "type": "string", "enum": ["X", ""] },
+    "psych_unrealistic_fears": { "type": "string", "enum": ["X", ""] },
+    "psych_inappropriate_spitting": { "type": "string", "enum": ["X", ""] },
+    "psych_breaks_throws_things": { "type": "string", "enum": ["X", ""] },
+    "psych_behavior_other": { "type": "string" },
+    "psych_requires_psychopharmacologic": {
+      "type": "string",
+      "enum": ["X", ""]
+    },
+    "psych_psychopharmacologic_details": { "type": "string" },
+    "psych_crisis_plan": { "type": "string", "enum": ["X", ""] },
+    "psych_counseling": { "type": "string", "enum": ["X", ""] },
+    "psych_mental_health_provider": { "type": "string" },
+    "psych_past_behaviors": { "type": "string" },
+    "psych_meaningful_day": { "type": "string", "enum": ["X", "☒", ""] },
+    "psych_expanded_community_services": {
+      "type": "string",
+      "enum": ["X", "☐", ""]
+    },
+    "psych_specialized_behavior_services": {
+      "type": "string",
+      "enum": ["X", "☐", ""]
+    },
+    "psych_mh_provider_program": { "type": "string", "enum": ["X", "☐", ""] },
+    "psych_program_contact": { "type": "string" },
+    "psych_intervention_meaningful_day": {
+      "type": "string",
+      "enum": ["X", ""]
+    },
+    "psych_intervention_other": { "type": "string" },
+    "psych_narrative_typical_day": { "type": "string" },
+    "psych_strengths_abilities": { "type": "string" },
+    "psych_assistance_required": { "type": "string" },
+
+    "left_alone_ability": { "type": "string" },
+    "left_alone_strengths": { "type": "string" },
+    "left_alone_assistance": { "type": "string" },
+
+    "precautions_always": { "type": "string", "enum": ["X", ""] },
+    "precautions_special": { "type": "string" },
+    "precautions_alt_visitation": { "type": "string", "enum": ["X", ""] },
+    "precautions_mask_able": { "type": "string", "enum": ["X", ""] },
+    "precautions_mask_not_able": { "type": "string", "enum": ["X", ""] },
+    "precautions_sanitizer_safe": { "type": "string", "enum": ["X", ""] },
+    "precautions_vaccinations_current": { "type": "string", "enum": ["X", ""] },
+    "precautions_vaccinations_list": { "type": "string" },
+    "precautions_shared_equipment": { "type": "string" },
+    "precautions_other": { "type": "string" },
+    "precautions_strengths": { "type": "string" },
+    "precautions_assistance": { "type": "string" },
+
+    "adl_ambulation_in_room": {
+      "type": "string",
+      "enum": [
+        "Independent",
+        "Supervision/Cueing",
+        "Assistance Needed",
+        "Totally Dependent"
+      ]
+    },
+    "adl_ambulation_outside": {
+      "type": "string",
+      "enum": [
+        "Independent",
+        "Supervision/Cueing",
+        "Assistance Needed",
+        "Totally Dependent"
+      ]
+    },
+    "adl_ambulation_fall_risk": { "type": "string", "enum": ["X", ""] },
+    "adl_ambulation_fall_prevention_plan": { "type": "string" },
+    "adl_ambulation_bedroom_lock": { "type": "string", "enum": ["X", ""] },
+    "adl_ambulation_equipment": { "type": "string" },
+    "adl_ambulation_vendor": { "type": "string" },
+    "adl_ambulation_limitations": { "type": "string" },
+    "adl_ambulation_strengths": { "type": "string" },
+    "adl_ambulation_assistance": { "type": "string" },
+
+    "adl_bed_mobility_level": {
+      "type": "string",
+      "enum": [
+        "Independent",
+        "Supervision/Cueing",
+        "Assistance Needed",
+        "Totally Dependent"
+      ]
+    },
+    "adl_bed_skin_care": { "type": "string", "enum": ["X", ""] },
+    "adl_bed_skin_equipment": { "type": "string" },
+    "adl_bed_turning_needed": { "type": "string", "enum": ["X", ""] },
+    "adl_bed_turning_frequency": { "type": "string" },
+    "adl_bed_safety_assessment": { "type": "string" },
+    "adl_bed_fall_risk": { "type": "string", "enum": ["X", ""] },
+    "adl_bed_fall_prevention": { "type": "string" },
+    "adl_bed_safety_plan": { "type": "string" },
+    "adl_bed_medical_devices": { "type": "string" },
+    "adl_bed_hoyer_lift": { "type": "string", "enum": ["X", ""] },
+    "adl_bed_transfer_pole": { "type": "string", "enum": ["X", ""] },
+    "adl_bed_device_risk_assessment": { "type": "string" },
+    "adl_bed_nighttime_care": { "type": "string", "enum": ["X", ""] },
+    "adl_bed_equipment": { "type": "string" },
+    "adl_bed_strengths": { "type": "string" },
+    "adl_bed_assistance": { "type": "string" },
+
+    "adl_eating_level": {
+      "type": "string",
+      "enum": [
+        "Independent",
+        "Supervision/Cueing",
+        "Assistance Needed",
+        "Totally Dependent"
+      ]
+    },
+    "adl_eating_special_diet": { "type": "string" },
+    "adl_eating_habits": { "type": "string" },
+    "adl_eating_food_allergies": { "type": "string" },
+    "adl_eating_equipment": { "type": "string" },
+    "adl_eating_limitations": { "type": "string" },
+    "adl_eating_strengths": { "type": "string" },
+    "adl_eating_assistance": { "type": "string" },
+
+    "adl_toileting_level": {
+      "type": "string",
+      "enum": [
+        "Independent",
+        "Supervision/Cueing",
+        "Assistance Needed",
+        "Totally Dependent"
+      ]
+    },
+    "adl_toileting_frequency": { "type": "string" },
+    "adl_toileting_bladder_incontinence": {
+      "type": "string",
+      "enum": ["X", ""]
+    },
+    "adl_toileting_bowel_incontinence": { "type": "string", "enum": ["X", ""] },
+    "adl_toileting_skin_care": { "type": "string", "enum": ["X", ""] },
+    "adl_toileting_equipment": { "type": "string" },
+    "adl_toileting_limitations": { "type": "string" },
+    "adl_toileting_strengths": { "type": "string" },
+    "adl_toileting_assistance": { "type": "string" },
+
+    "adl_dressing_level": {
+      "type": "string",
+      "enum": [
+        "Independent",
+        "Supervision/Cueing",
+        "Assistance Needed",
+        "Totally Dependent"
+      ]
+    },
+    "adl_dressing_equipment": { "type": "string" },
+    "adl_dressing_limitations": { "type": "string" },
+    "adl_dressing_strengths": { "type": "string" },
+    "adl_dressing_assistance": { "type": "string" },
+
+    "adl_hygiene_level": {
+      "type": "string",
+      "enum": [
+        "Independent",
+        "Supervision/Cueing",
+        "Assistance Needed",
+        "Totally Dependent"
+      ]
+    },
+    "adl_hygiene_own_teeth": { "type": "string", "enum": ["X", ""] },
+    "adl_hygiene_partials": { "type": "string", "enum": ["X", ""] },
+    "adl_hygiene_dentures": { "type": "string", "enum": ["X", ""] },
+    "adl_hygiene_oral_flossing": { "type": "string", "enum": ["X", ""] },
+    "adl_hygiene_oral_brushing": { "type": "string", "enum": ["X", ""] },
+    "adl_hygiene_oral_soaking": { "type": "string", "enum": ["X", ""] },
+    "adl_hygiene_hair_care": { "type": "string" },
+    "adl_hygiene_menses_care": { "type": "string" },
+    "adl_hygiene_when_how_often": { "type": "string" },
+    "adl_hygiene_equipment": { "type": "string" },
+    "adl_hygiene_limitations": { "type": "string" },
+    "adl_hygiene_strengths": { "type": "string" },
+    "adl_hygiene_assistance": { "type": "string" },
+
+    "adl_bathing_level": {
+      "type": "string",
+      "enum": [
+        "Independent",
+        "Supervision/Cueing",
+        "Assistance Needed",
+        "Totally Dependent"
+      ]
+    },
+    "adl_bathing_when_how_often": { "type": "string" },
+    "adl_bathing_equipment": { "type": "string" },
+    "adl_bathing_limitations": { "type": "string" },
+    "adl_bathing_strengths": { "type": "string" },
+    "adl_bathing_assistance": { "type": "string" },
+
+    "adl_foot_level": {
+      "type": "string",
+      "enum": [
+        "Independent",
+        "Supervision/Cueing",
+        "Assistance Needed",
+        "Totally Dependent"
+      ]
+    },
+    "adl_foot_care_frequency": { "type": "string" },
+    "adl_foot_diabetic": { "type": "string", "enum": ["X", ""] },
+    "adl_foot_nail_care": { "type": "string", "enum": ["X", ""] },
+    "adl_foot_home_health_agency": { "type": "string" },
+    "adl_foot_equipment": { "type": "string" },
+    "adl_foot_limitations": { "type": "string" },
+    "adl_foot_strengths": { "type": "string" },
+    "adl_foot_assistance": { "type": "string" },
+
+    "adl_skin_level": {
+      "type": "string",
+      "enum": [
+        "Independent",
+        "Supervision/Cueing",
+        "Assistance Needed",
+        "Totally Dependent"
+      ]
+    },
+    "adl_skin_care_frequency": { "type": "string" },
+    "adl_skin_status": { "type": "string" },
+    "adl_skin_problems": { "type": "string" },
+    "adl_skin_problems_status": { "type": "string" },
+    "adl_skin_pressure_injuries": { "type": "string" },
+    "adl_skin_dressing_changes_frequency": { "type": "string" },
+    "adl_skin_nurse_delegated": { "type": "string", "enum": ["X", ""] },
+    "adl_skin_home_health_agency": { "type": "string" },
+    "adl_skin_equipment": { "type": "string" },
+    "adl_skin_limitations": { "type": "string" },
+    "adl_skin_assistance": { "type": "string" },
+
+    "iadl_finances_level": {
+      "type": "string",
+      "enum": ["Independent", "Assistance Needed", "Dependent"]
+    },
+    "iadl_finances_who_manages": { "type": "string" },
+    "iadl_finances_who_manages_records": { "type": "string" },
+    "iadl_finances_payee": { "type": "string" },
+    "iadl_finances_strengths": { "type": "string" },
+    "iadl_finances_prefers_independent": { "type": "string" },
+    "iadl_finances_assistance": { "type": "string" },
+
+    "iadl_shopping_level": {
+      "type": "string",
+      "enum": ["Independent", "Assistance Needed", "Dependent"]
+    },
+    "iadl_shopping_transport_needs": { "type": "string" },
+    "iadl_shopping_frequency": { "type": "string" },
+    "iadl_shopping_equipment": { "type": "string" },
+    "iadl_shopping_limitations": { "type": "string" },
+    "iadl_shopping_strengths": { "type": "string" },
+    "iadl_shopping_assistance": { "type": "string" },
+
+    "iadl_transport_level": {
+      "type": "string",
+      "enum": ["Independent", "Assistance Needed", "Dependent"]
+    },
+    "iadl_transport_medical_services": { "type": "string" },
+    "iadl_transport_special_needs": { "type": "string" },
+    "iadl_transport_escort_required": { "type": "string", "enum": ["X", ""] },
+    "iadl_transport_frequency": { "type": "string" },
+    "iadl_transport_equipment": { "type": "string" },
+    "iadl_transport_limitations": { "type": "string" },
+    "iadl_transport_strengths": { "type": "string" },
+    "iadl_transport_assistance": { "type": "string" },
+
+    "iadl_activities_level": {
+      "type": "string",
+      "enum": ["Independent", "Assistance Needed", "Dependent"]
+    },
+    "iadl_activities_interests": { "type": "string" },
+    "iadl_activities_cultural_preferences": { "type": "string" },
+    "iadl_activities_family_friends": { "type": "string" },
+    "iadl_activities_employment_support": { "type": "string" },
+    "iadl_activities_clubs_groups": { "type": "string" },
+    "iadl_activities_special_arrangements": { "type": "string" },
+    "iadl_activities_participation_issues": { "type": "string" },
+    "iadl_activities_strengths": { "type": "string" },
+    "iadl_activities_assistance": { "type": "string" },
+    "iadl_activities_participation_assistance": { "type": "string" },
+
+    "activity_pref_reading": { "type": "string", "enum": ["X", ""] },
+    "activity_pref_audiobooks": { "type": "string", "enum": ["X", ""] },
+    "activity_pref_storytelling": { "type": "string", "enum": ["X", ""] },
+    "activity_pref_phone_visiting": { "type": "string", "enum": ["X", ""] },
+    "activity_pref_reminiscing": { "type": "string", "enum": ["X", ""] },
+    "activity_pref_current_events": { "type": "string", "enum": ["X", ""] },
+    "activity_pref_discussion": { "type": "string", "enum": ["X", ""] },
+    "activity_pref_bible_church": { "type": "string", "enum": ["X", ""] },
+    "activity_pref_visitors": { "type": "string", "enum": ["X", ""] },
+    "activity_pref_gardening": { "type": "string", "enum": ["X", ""] },
+    "activity_pref_outings": { "type": "string", "enum": ["X", ""] },
+    "activity_pref_zoos_pets": { "type": "string", "enum": ["X", ""] },
+    "activity_pref_exercises": { "type": "string", "enum": ["X", ""] },
+    "activity_pref_walking": { "type": "string", "enum": ["X", ""] },
+    "activity_pref_cooking": { "type": "string", "enum": ["X", ""] },
+    "activity_pref_housechores": { "type": "string", "enum": ["X", ""] },
+    "activity_pref_tv_movies": { "type": "string", "enum": ["X", ""] },
+    "activity_pref_parties": { "type": "string", "enum": ["X", ""] },
+    "activity_pref_arts_crafts": { "type": "string", "enum": ["X", ""] },
+    "activity_pref_games_puzzles": { "type": "string", "enum": ["X", ""] },
+    "activity_pref_beauty": { "type": "string", "enum": ["X", ""] },
+    "activity_pref_music": { "type": "string", "enum": ["X", ""] },
+    "activity_pref_employment": { "type": "string", "enum": ["X", ""] },
+    "activity_pref_community": { "type": "string", "enum": ["X", ""] },
+    "activity_pref_other": { "type": "string" },
+
+    "smoking_resident_smokes": { "type": "string", "enum": ["X", ""] },
+    "smoking_safety_concerns": { "type": "string" },
+    "smoking_policy_reviewed": { "type": "string", "enum": ["X", ""] },
+    "smoking_storage": { "type": "string" },
+    "smoking_strengths": { "type": "string" },
+    "smoking_assistance": { "type": "string" },
+
+    "cm_receives_case_management": { "type": "string", "enum": ["X", ""] },
+    "cm_name": { "type": "string" },
+    "cm_agency": { "type": "string" },
+    "cm_phone": { "type": "string" },
+    "cm_email": { "type": "string" },
+    "cm_fax": { "type": "string" },
+
+    "other_issues_concerns": { "type": "string" },
+
+    "ncp_date_original_plan": { "type": "string" },
+    "ncp_dates_review_revision": { "type": "string" },
+    "ncp_involved_resident": { "type": "string", "enum": ["X", ""] },
+    "ncp_involved_representative": { "type": "string", "enum": ["X", ""] },
+    "ncp_involved_parent": { "type": "string", "enum": ["X", ""] },
+    "ncp_involved_health_professional": { "type": "string", "enum": ["X", ""] },
+    "ncp_involved_other_1": { "type": "string" },
+    "ncp_involved_other_2": { "type": "string" },
+    "ncp_involved_other_3": { "type": "string" },
+    "ncp_provider_signature": { "type": "string" },
+    "ncp_provider_signature_date": { "type": "string" },
+    "ncp_resident_signature": { "type": "string" },
+    "ncp_resident_signature_date": { "type": "string" },
+    "ncp_representative_signature": { "type": "string" },
+    "ncp_representative_signature_date": { "type": "string" },
+    "ncp_resident_verbally_agreed": { "type": "string", "enum": ["X", ""] },
+    "ncp_verbal_agreement_date": { "type": "string" },
+    "ncp_sent_to_dshs_cm": { "type": "string", "enum": ["X", ""] },
+    "ncp_sent_to_dshs_date": { "type": "string" },
+    "ncp_resident_recommendations": { "type": "string" }
+  }
+}

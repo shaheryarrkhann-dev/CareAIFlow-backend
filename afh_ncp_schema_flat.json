@@ -1,0 +1,2238 @@
+{
+  "properties": {
+    "provider_name": {
+      "type": "string",
+      "description": "Name of the Adult Family Home provider."
+    },
+    "date_ncp_started": {
+      "type": "string",
+      "description": "Date the NCP was started (format: MM/DD/YYYY)."
+    },
+    "moved_in_date": {
+      "type": "string",
+      "description": "Date the resident moved in (format: MM/DD/YYYY)."
+    },
+    "date_completed": {
+      "type": "string",
+      "description": "Date NCP was completed (format: MM/DD/YYYY)."
+    },
+    "date_discharged": {
+      "type": "string",
+      "description": "Discharge date if applicable (format: MM/DD/YYYY)."
+    },
+    "resident_name": {
+      "type": "string",
+      "description": "Full name of the resident."
+    },
+    "resident_pronouns": {
+      "type": "string",
+      "description": "Resident's preferred pronouns (e.g., he/him, she/her, they/them)."
+    },
+    "date_of_birth": {
+      "type": "string",
+      "description": "Resident's date of birth (format: MM/DD/YYYY)."
+    },
+    "age": {
+      "type": "string",
+      "description": "Resident's age."
+    },
+    "primary_language": {
+      "type": "string",
+      "description": "Resident's primary language."
+    },
+    "speaks_english": {
+      "type": "string",
+      "description": "Does resident speak English? (Yes/No)"
+    },
+    "interpreter_needed": {
+      "type": "string",
+      "description": "Is an interpreter needed? (Yes/No)"
+    },
+    "all_allergies": {
+      "type": "string",
+      "description": "All known allergies (substance: reaction, separated by semicolons)."
+    },
+    "legal_docs_none": {
+      "type": "string",
+      "enum": ["X", ""],
+      "description": "Checkbox: No legal documents."
+    },
+    "legal_docs_advanced_directives": {
+      "type": "string",
+      "enum": ["X", ""],
+      "description": "Checkbox: Has Advanced Directives."
+    },
+    "legal_docs_polst": {
+      "type": "string",
+      "enum": ["X", ""],
+      "description": "Checkbox: Has POLST Form."
+    },
+    "legal_docs_other_checkbox": {
+      "type": "string",
+      "enum": ["X", ""],
+      "description": "Checkbox: Has other legal documents."
+    },
+    "legal_docs_other": {
+      "type": "string",
+      "description": "Description of other legal documents."
+    },
+    "specialty_needs_none": {
+      "type": "string",
+      "enum": ["X", ""],
+      "description": "Checkbox: No specialty needs."
+    },
+    "specialty_needs_dementia": {
+      "type": "string",
+      "enum": ["X", ""],
+      "description": "Checkbox: Dementia specialty needs."
+    },
+    "specialty_needs_mental_health": {
+      "type": "string",
+      "enum": ["X", ""],
+      "description": "Checkbox: Mental Health specialty needs."
+    },
+    "specialty_needs_developmental_disability": {
+      "type": "string",
+      "enum": ["X", ""],
+      "description": "Checkbox: Developmental Disability specialty needs."
+    },
+    "specialty_needs_other_checkbox": {
+      "type": "string",
+      "enum": ["X", ""],
+      "description": "Checkbox: Has other specialty needs."
+    },
+    "specialty_needs_other": {
+      "type": "string",
+      "description": "Description of other specialty needs."
+    },
+    "evacuation_none_independent": {
+      "type": "string",
+      "enum": ["X", ""],
+      "description": "Checkbox: No assistance required for evacuation; resident is independent."
+    },
+    "evacuation_assistance_required": {
+      "type": "string",
+      "enum": ["X", ""],
+      "description": "Checkbox: Assistance required for evacuation."
+    },
+    "evacuation_safety_instructions": {
+      "type": "string",
+      "description": "Resident's evacuation and safety instructions."
+    },
+    "caregiver_evacuation_actions": {
+      "type": "string",
+      "description": "Specific actions the caregiver will take to assist the resident during an emergency evacuation."
+    },
+    "current_medical_diagnoses": {
+      "type": "string",
+      "description": "List of current medical diagnoses."
+    },
+    "contact_1_name": {
+      "type": "string",
+      "description": "Emergency Contact 1: Name."
+    },
+    "contact_1_relationship": {
+      "type": "string",
+      "description": "Emergency Contact 1: Relationship to resident."
+    },
+    "contact_1_home_phone": {
+      "type": "string",
+      "description": "Emergency Contact 1: Home/Business phone."
+    },
+    "contact_1_cell_fax": {
+      "type": "string",
+      "description": "Emergency Contact 1: Cell phone or fax."
+    },
+    "contact_1_address_email": {
+      "type": "string",
+      "description": "Emergency Contact 1: Address or email."
+    },
+    "contact_2_name": {
+      "type": "string",
+      "description": "Emergency Contact 2: Name."
+    },
+    "contact_2_relationship": {
+      "type": "string",
+      "description": "Emergency Contact 2: Relationship."
+    },
+    "contact_2_home_phone": {
+      "type": "string",
+      "description": "Emergency Contact 2: Home/Business phone."
+    },
+    "contact_2_cell_fax": {
+      "type": "string",
+      "description": "Emergency Contact 2: Cell phone or fax."
+    },
+    "contact_2_address_email": {
+      "type": "string",
+      "description": "Emergency Contact 2: Address or email."
+    },
+    "contact_3_name": {
+      "type": "string",
+      "description": "Emergency Contact 3: Name."
+    },
+    "contact_3_relationship": {
+      "type": "string",
+      "description": "Emergency Contact 3: Relationship."
+    },
+    "contact_3_home_phone": {
+      "type": "string",
+      "description": "Emergency Contact 3: Home/Business phone."
+    },
+    "contact_3_cell_fax": {
+      "type": "string",
+      "description": "Emergency Contact 3: Cell phone or fax."
+    },
+    "contact_3_address_email": {
+      "type": "string",
+      "description": "Emergency Contact 3: Address or email."
+    },
+    "contact_4_name": {
+      "type": "string",
+      "description": "Emergency Contact 4: Name."
+    },
+    "contact_4_relationship": {
+      "type": "string",
+      "description": "Emergency Contact 4: Relationship."
+    },
+    "contact_4_home_phone": {
+      "type": "string",
+      "description": "Emergency Contact 4: Home/Business phone."
+    },
+    "contact_4_cell_fax": {
+      "type": "string",
+      "description": "Emergency Contact 4: Cell phone or fax."
+    },
+    "contact_4_address_email": {
+      "type": "string",
+      "description": "Emergency Contact 4: Address or email."
+    },
+    "contact_5_name": {
+      "type": "string",
+      "description": "Emergency Contact 5: Name."
+    },
+    "contact_5_relationship": {
+      "type": "string",
+      "description": "Emergency Contact 5: Relationship."
+    },
+    "contact_5_home_phone": {
+      "type": "string",
+      "description": "Emergency Contact 5: Home/Business phone."
+    },
+    "contact_5_cell_fax": {
+      "type": "string",
+      "description": "Emergency Contact 5: Cell phone or fax."
+    },
+    "contact_5_address_email": {
+      "type": "string",
+      "description": "Emergency Contact 5: Address or email."
+    },
+    "contact_6_name": {
+      "type": "string",
+      "description": "Emergency Contact 6: Name."
+    },
+    "contact_6_relationship": {
+      "type": "string",
+      "description": "Emergency Contact 6: Relationship."
+    },
+    "contact_6_home_phone": {
+      "type": "string",
+      "description": "Emergency Contact 6: Home/Business phone."
+    },
+    "contact_6_cell_fax": {
+      "type": "string",
+      "description": "Emergency Contact 6: Cell phone or fax."
+    },
+    "contact_6_address_email": {
+      "type": "string",
+      "description": "Emergency Contact 6: Address or email."
+    },
+    "comm_modes_of_expression": {
+      "type": "string",
+      "description": "Primary ways the resident expresses themselves (e.g., verbal, gestures)."
+    },
+    "comm_expression_yes": {
+      "type": "string",
+      "enum": ["X", ""],
+      "description": "Checkbox: Yes, problems with mode of expression."
+    },
+    "comm_expression_no": {
+      "type": "string",
+      "enum": ["X", ""],
+      "description": "Checkbox: No problems with mode of expression."
+    },
+    "comm_expression_describe": {
+      "type": "string",
+      "description": "Description of expression problems."
+    },
+    "comm_expression_equipment": {
+      "type": "string",
+      "description": "Equipment used for expression (e.g., communication board)."
+    },
+    "comm_how_makes_self_understood": {
+      "type": "string",
+      "description": "How the resident makes themselves understood."
+    },
+    "comm_how_understands_others": {
+      "type": "string",
+      "description": "How the resident comprehends information from others."
+    },
+    "comm_strength_abilities_details": {
+      "type": "string",
+      "description": "Resident's strengths/abilities regarding communication, hearing, and vision."
+    },
+    "comm_expression_assistance_instructions": {
+      "type": "string",
+      "description": "Specific assistance and instructions for communication and understanding."
+    },
+    "comm_caregiver_actions": {
+      "type": "string",
+      "description": "Actions caregiver will take for hearing/vision/phone assistance."
+    },
+    "comm_problems_hearing_yes": {
+      "type": "string",
+      "enum": ["X", ""],
+      "description": "Checkbox: Yes, problems with hearing."
+    },
+    "comm_problems_hearing_no": {
+      "type": "string",
+      "enum": ["X", ""],
+      "description": "Checkbox: No problems with hearing."
+    },
+    "comm_hearing_describe": {
+      "type": "string",
+      "description": "Description of hearing problems."
+    },
+    "comm_hearing_equipment": {
+      "type": "string",
+      "description": "Equipment used for hearing (e.g., hearing aids)."
+    },
+    "comm_problems_vision_yes": {
+      "type": "string",
+      "enum": ["X", ""],
+      "description": "Checkbox: Yes, problems with vision."
+    },
+    "comm_problems_vision_no": {
+      "type": "string",
+      "enum": ["X", ""],
+      "description": "Checkbox: No problems with vision."
+    },
+    "comm_vision_describe": {
+      "type": "string",
+      "description": "Description of vision problems."
+    },
+    "comm_vision_equipment": {
+      "type": "string",
+      "description": "Equipment used for vision (e.g., glasses)."
+    },
+    "comm_phone_independent": {
+      "type": "string",
+      "enum": ["X", ""],
+      "description": "Checkbox: Uses phone independently."
+    },
+    "comm_phone_assistance": {
+      "type": "string",
+      "enum": ["X", ""],
+      "description": "Checkbox: Needs assistance using phone."
+    },
+    "comm_phone_dependent": {
+      "type": "string",
+      "enum": ["X", ""],
+      "description": "Checkbox: Dependent on others for phone use."
+    },
+    "comm_resident_has_phone": {
+      "type": "string",
+      "enum": ["X", ""],
+      "description": "Checkbox: Resident has their own phone."
+    },
+    "comm_resident_phone_number": {
+      "type": "string",
+      "description": "Resident's personal phone number."
+    },
+    "comm_preferred_language": {
+      "type": "string",
+      "description": "Resident's preferred language for daily communication."
+    },
+    "comm_hearing_strengths": {
+      "type": "string",
+      "description": "Resident strengths related to hearing — e.g., uses hearing aids effectively, can hear with amplification, benefits from face-to-face communication."
+    },
+    "comm_hearing_assistance": {
+      "type": "string",
+      "description": "Caregiver assistance for hearing impairment — e.g., speak clearly and face resident, ensure hearing aids are in, minimize background noise, use written communication if needed."
+    },
+    "comm_vision_strengths": {
+      "type": "string",
+      "description": "Resident strengths related to vision — e.g., uses glasses effectively, can read large print, recognizes familiar faces, uses remaining peripheral vision."
+    },
+    "comm_vision_assistance": {
+      "type": "string",
+      "description": "Caregiver assistance for vision impairment — e.g., ensure glasses are worn, use good lighting, announce presence before touching, provide verbal descriptions of environment."
+    },
+    "comm_phone_strengths": {
+      "type": "string",
+      "description": "Resident strengths related to phone use — e.g., able to make calls independently, can use speed dial, benefits from large-button phone."
+    },
+    "comm_phone_assistance": {
+      "type": "string",
+      "description": "Caregiver assistance for phone use — e.g., dial numbers for resident, provide large-button phone, assist with hearing phone conversations."
+    },
+    "comm_language_strengths": {
+      "type": "string",
+      "description": "Resident communication strengths related to language preference — e.g., communicates effectively in preferred language, uses consistent vocabulary, responds to familiar phrases."
+    },
+    "comm_language_assistance": {
+      "type": "string",
+      "description": "Caregiver assistance for language/communication barriers — e.g., use interpreter services, learn key phrases in resident's language, use picture boards or translation apps."
+    },
+    "comm_comments": {
+      "type": "string",
+      "description": "Additional comments regarding communication."
+    },
+    "med_has_allergies": {
+      "type": "string",
+      "enum": ["X", ""],
+      "description": "Checkbox: Resident has medication allergies."
+    },
+    "med_allergies": {
+      "type": "string",
+      "description": "List of medication allergies."
+    },
+    "med_needs_multiple_assistance": {
+      "type": "string",
+      "enum": ["X", ""],
+      "description": "Checkbox: Resident needs more than one kind of medication assistance."
+    },
+    "med_prescribed_psychopharmacologic": {
+      "type": "string",
+      "enum": ["X", ""],
+      "description": "Checkbox: Prescribed psychopharmacologic medications."
+    },
+    "med_see_mar": {
+      "type": "string",
+      "enum": ["X", ""],
+      "description": "Checkbox: See MAR for current medications."
+    },
+    "med_ordered_by": {
+      "type": "string",
+      "description": "Who orders the medications (e.g., PCP name)."
+    },
+    "med_delivered_by": {
+      "type": "string",
+      "description": "Who delivers the medications (e.g., Pharmacy name)."
+    },
+    "med_pharmacy_packed": {
+      "type": "string",
+      "enum": ["X", ""],
+      "description": "Checkbox: Medications are pharmacy packed."
+    },
+    "med_self_administration": {
+      "type": "string",
+      "enum": ["X", ""],
+      "description": "Checkbox: Self-administration of medication."
+    },
+    "med_self_admin_with_assist": {
+      "type": "string",
+      "enum": ["X", ""],
+      "description": "Checkbox: Self-administration with assistance."
+    },
+    "med_administration": {
+      "type": "string",
+      "enum": ["X", ""],
+      "description": "Checkbox: Full medication administration required."
+    },
+    "med_equipment": {
+      "type": "string",
+      "description": "Equipment used for medications (e.g., pill crusher)."
+    },
+    "med_type_oral": {
+      "type": "string",
+      "enum": ["X", ""],
+      "description": "Checkbox: Oral medications."
+    },
+    "med_type_topical": {
+      "type": "string",
+      "enum": ["X", ""],
+      "description": "Checkbox: Topical medications."
+    },
+    "med_type_eye_drops": {
+      "type": "string",
+      "enum": ["X", ""],
+      "description": "Checkbox: Eye drops/ointment."
+    },
+    "med_type_inhalers": {
+      "type": "string",
+      "enum": ["X", ""],
+      "description": "Checkbox: Inhalers."
+    },
+    "med_type_sprays": {
+      "type": "string",
+      "enum": ["X", ""],
+      "description": "Checkbox: Sprays."
+    },
+    "med_injection": {
+      "type": "string",
+      "enum": ["X", ""],
+      "description": "Checkbox: Injections required."
+    },
+    "med_injection_by_resident": {
+      "type": "string",
+      "enum": ["X", ""],
+      "description": "Checkbox: Injection by resident."
+    },
+    "med_injection_by_surrogate": {
+      "type": "string",
+      "enum": ["X", ""],
+      "description": "Checkbox: Injection by surrogate."
+    },
+    "med_injection_by_family": {
+      "type": "string",
+      "enum": ["X", ""],
+      "description": "Checkbox: Injection by family."
+    },
+    "med_injection_by_licensed_pro": {
+      "type": "string",
+      "enum": ["X", ""],
+      "description": "Checkbox: Injection by licensed professional."
+    },
+    "med_injection_nurse_delegation": {
+      "type": "string",
+      "enum": ["X", ""],
+      "description": "Checkbox: Injection under nurse delegation (insulin only)."
+    },
+    "med_allergy_kits": {
+      "type": "string",
+      "enum": ["X", ""],
+      "description": "Checkbox: Allergy kits used."
+    },
+    "med_suppositories": {
+      "type": "string",
+      "enum": ["X", ""],
+      "description": "Checkbox: Suppositories used."
+    },
+    "med_type_other": {
+      "type": "string",
+      "enum": ["X", ""],
+      "description": "Checkbox: Other medication types."
+    },
+    "med_type_other_desc": {
+      "type": "string",
+      "description": "Description of other medication types."
+    },
+    "med_requires_nurse_delegation": {
+      "type": "string",
+      "enum": ["X", ""],
+      "description": "Checkbox: Medication requires nurse delegation."
+    },
+    "rn_delegator_name": {
+      "type": "string",
+      "description": "RN Delegator Name."
+    },
+    "rn_delegator_phone": {
+      "type": "string",
+      "description": "RN Delegator Phone."
+    },
+    "rn_delegator_fax": {
+      "type": "string",
+      "description": "RN Delegator Fax."
+    },
+    "rn_delegator_email": {
+      "type": "string",
+      "description": "RN Delegator Email."
+    },
+    "med_strengths_abilities": {
+      "type": "string",
+      "description": "Resident's strengths/abilities regarding medication."
+    },
+    "med_assistance_reason": {
+      "type": "string",
+      "description": "Reason why the resident needs medication assistance."
+    },
+    "med_caregiver_actions": {
+      "type": "string",
+      "description": "Specific caregiver actions for medication administration."
+    },
+    "med_out_of_afh_strengths": {
+      "type": "string",
+      "description": "Strengths/abilities for medications when out of the facility."
+    },
+    "med_out_of_afh_caregiver_actions": {
+      "type": "string",
+      "description": "Caregiver actions for managing medications during outings."
+    },
+    "med_refusal_strengths": {
+      "type": "string",
+      "description": "Resident's strengths/preferences regarding medication refusal."
+    },
+    "med_refusal_caregiver_actions": {
+      "type": "string",
+      "description": "Caregiver actions if resident refuses medication."
+    },
+    "health_pain": {
+      "type": "string",
+      "enum": ["X", ""],
+      "description": "Checkbox: Resident experiences pain."
+    },
+    "health_pain_impact": {
+      "type": "string",
+      "description": "Description of pain impact."
+    },
+    "health_weight_loss_gain": {
+      "type": "string",
+      "enum": ["X", ""],
+      "description": "Checkbox: Monitoring weight loss/gain."
+    },
+    "health_current_weight": {
+      "type": "string",
+      "description": "Resident's current weight."
+    },
+    "health_current_height": {
+      "type": "string",
+      "description": "Resident's current height."
+    },
+    "health_vital_signs": {
+      "type": "string",
+      "enum": ["X", ""],
+      "description": "Checkbox: Vital signs monitored."
+    },
+    "health_hospitalization": {
+      "type": "string",
+      "enum": ["X", ""],
+      "description": "Checkbox: Recent hospitalization or emergency visits."
+    },
+    "health_other": {
+      "type": "string",
+      "enum": ["X", ""],
+      "description": "Checkbox: Other health indicators."
+    },
+    "health_other_desc": {
+      "type": "string",
+      "description": "Description of other health indicators."
+    },
+    "health_strengths_abilities": {
+      "type": "string",
+      "description": "Strengths/abilities for tracking health indicators."
+    },
+    "health_assistance_required": {
+      "type": "string",
+      "description": "Caregiver actions for monitoring health indicators."
+    },
+    "allergy_substance_1": {
+      "type": "string",
+      "description": "Primary allergy substance."
+    },
+    "allergy_reaction_1": {
+      "type": "string",
+      "description": "Primary allergy reaction."
+    },
+    "treatment_oxygen": {
+      "type": "string",
+      "enum": ["X", ""],
+      "description": "Checkbox: Oxygen Use."
+    },
+    "treatment_oxygen_vendor": {
+      "type": "string",
+      "description": "Oxygen vendor name."
+    },
+    "treatment_dialysis": {
+      "type": "string",
+      "enum": ["X", ""],
+      "description": "Checkbox: Dialysis."
+    },
+    "treatment_dialysis_provider": {
+      "type": "string",
+      "description": "Dialysis provider name."
+    },
+    "treatment_blood_thinners": {
+      "type": "string",
+      "enum": ["X", ""],
+      "description": "Checkbox: Blood Thinners."
+    },
+    "treatment_inr_lab": {
+      "type": "string",
+      "enum": ["X", ""],
+      "description": "Checkbox: INR/Lab."
+    },
+    "treatment_inr_lab_provider": {
+      "type": "string",
+      "description": "INR/Lab provider name."
+    },
+    "treatment_anticoagulation": {
+      "type": "string",
+      "enum": ["X", ""],
+      "description": "Checkbox: Anticoagulation therapy / easily bruised."
+    },
+    "treatment_blood_glucose": {
+      "type": "string",
+      "enum": ["X", ""],
+      "description": "Checkbox: Blood Glucose Monitoring."
+    },
+    "treatment_injection": {
+      "type": "string",
+      "enum": ["X", ""],
+      "description": "Checkbox: Injection treatment."
+    },
+    "treatment_cpap_bipap": {
+      "type": "string",
+      "enum": ["X", ""],
+      "description": "Checkbox: CPAP/BiPAP."
+    },
+    "treatment_nebulizer": {
+      "type": "string",
+      "enum": ["X", ""],
+      "description": "Checkbox: Nebulizer."
+    },
+    "treatment_range_of_motion": {
+      "type": "string",
+      "enum": ["X", ""],
+      "description": "Checkbox: Range of Motion."
+    },
+    "treatment_pt_ot_st": {
+      "type": "string",
+      "enum": ["X", ""],
+      "description": "Checkbox: PT/OT/ST."
+    },
+    "treatment_nurse_delegation": {
+      "type": "string",
+      "enum": ["X", ""],
+      "description": "Checkbox: Nurse Delegation for treatments."
+    },
+    "treatment_nurse_delegation_tasks": {
+      "type": "string",
+      "description": "Specific delegated treatment tasks."
+    },
+    "treatment_other": {
+      "type": "string",
+      "enum": ["X", ""],
+      "description": "Checkbox: Other treatments."
+    },
+    "treatment_strengths_abilities_1": {
+      "type": "string",
+      "description": "Strengths regarding oxygen/dialysis/blood thinners/INR."
+    },
+    "treatment_strengths_abilities_2": {
+      "type": "string",
+      "description": "Strengths regarding anticoagulation/glucose/injections/CPAP/nebulizer/ROM."
+    },
+    "treatment_caregiver_actions_1": {
+      "type": "string",
+      "description": "Caregiver actions for oxygen/dialysis/blood thinners/INR."
+    },
+    "treatment_caregiver_actions_2": {
+      "type": "string",
+      "description": "Caregiver actions for anticoagulation/glucose/injections/CPAP/nebulizer/ROM."
+    },
+    "treatment_home_health": {
+      "type": "string",
+      "enum": ["X", ""],
+      "description": "Checkbox: Home Health."
+    },
+    "treatment_adult_day_health": {
+      "type": "string",
+      "enum": ["X", ""],
+      "description": "Checkbox: Adult Day Health."
+    },
+    "treatment_hospice": {
+      "type": "string",
+      "enum": ["X", ""],
+      "description": "Checkbox: Hospice."
+    },
+    "treatment_hospice_plan": {
+      "type": "string",
+      "enum": ["X", ""],
+      "description": "Checkbox: Hospice Plan."
+    },
+    "treatment_hospice_other": {
+      "type": "string",
+      "enum": ["X", ""],
+      "description": "Checkbox: Other Hospice."
+    },
+    "treatment_hospice_other_desc": {
+      "type": "string",
+      "description": "Description of other hospice arrangement."
+    },
+    "treatment_programs_strengths": {
+      "type": "string",
+      "description": "Strengths regarding attending programs/therapies."
+    },
+    "treatment_programs_actions": {
+      "type": "string",
+      "description": "Caregiver actions to support program attendance."
+    },
+    "treatment_meaningful_day": {
+      "type": "string",
+      "enum": ["X", ""],
+      "description": "Checkbox: Meaningful Day Intervention."
+    },
+    "treatment_interventions_strengths": {
+      "type": "string",
+      "description": "Strengths regarding behavioral/therapeutic interventions."
+    },
+    "treatment_interventions_actions": {
+      "type": "string",
+      "description": "Caregiver actions for interventions."
+    },
+    "treatment_enablers_strengths": {
+      "type": "string",
+      "description": "Strengths regarding use of physical enablers."
+    },
+    "treatment_enablers_actions": {
+      "type": "string",
+      "description": "Caregiver actions regarding physical enablers."
+    },
+    "treatment_refusal_strengths": {
+      "type": "string",
+      "description": "Strengths regarding refusal of treatments."
+    },
+    "treatment_refusal_actions": {
+      "type": "string",
+      "description": "Caregiver actions when a treatment is refused."
+    },
+    "psych_sleep_disturbance": {
+      "type": "string",
+      "enum": ["X", ""],
+      "description": "Checkbox: Sleep disturbance."
+    },
+    "psych_nighttime_assistance": {
+      "type": "string",
+      "enum": ["X", ""],
+      "description": "Checkbox: Nighttime assistance needed."
+    },
+    "psych_sleep_strengths": {
+      "type": "string",
+      "description": "Resident's strengths/habits regarding sleep."
+    },
+    "psych_sleep_assistance": {
+      "type": "string",
+      "description": "Caregiver actions for sleep support."
+    },
+    "cognitive_memory_short_term": {
+      "type": "string",
+      "enum": ["X", ""],
+      "description": "Checkbox: Short-term memory impairment."
+    },
+    "cognitive_memory_long_term": {
+      "type": "string",
+      "enum": ["X", ""],
+      "description": "Checkbox: Long-term memory impairment."
+    },
+    "cognitive_oriented_person": {
+      "type": "string",
+      "enum": ["X", ""],
+      "description": "Checkbox: Orientated to Person."
+    },
+    "cognitive_decision_making": {
+      "type": "string",
+      "enum": ["X", ""],
+      "description": "Checkbox: Impaired decision making."
+    },
+    "psych_memory_strengths": {
+      "type": "string",
+      "description": "Resident strengths regarding memory and cognitive status — what the resident can still do, retained long-term memories, responds to familiar faces/routines."
+    },
+    "psych_memory_assistance": {
+      "type": "string",
+      "description": "Caregiver assistance for memory impairment — use of visual cues, reminders, familiar environment, reorientation strategies."
+    },
+    "psych_disruptive_behavior": {
+      "type": "string",
+      "enum": ["X", ""],
+      "description": "Checkbox: Disruptive behavior."
+    },
+    "psych_assaultive": {
+      "type": "string",
+      "enum": ["X", ""],
+      "description": "Checkbox: Assaultive."
+    },
+    "psych_resistive_to_care": {
+      "type": "string",
+      "enum": ["X", ""],
+      "description": "Checkbox: Resistive to care."
+    },
+    "psych_depression": {
+      "type": "string",
+      "enum": ["X", ""],
+      "description": "Checkbox: Depression."
+    },
+    "psych_anxiety": {
+      "type": "string",
+      "enum": ["X", ""],
+      "description": "Checkbox: Anxiety."
+    },
+    "psych_irritability": {
+      "type": "string",
+      "enum": ["X", ""],
+      "description": "Checkbox: Irritability."
+    },
+    "psych_disorientation": {
+      "type": "string",
+      "enum": ["X", ""],
+      "description": "Checkbox: Disorientation."
+    },
+    "psych_wandering": {
+      "type": "string",
+      "enum": ["X", ""],
+      "description": "Checkbox: Wandering/pacing."
+    },
+    "psych_exit_seeking": {
+      "type": "string",
+      "enum": ["X", ""],
+      "description": "Checkbox: Exit seeking."
+    },
+    "psych_hallucinations": {
+      "type": "string",
+      "enum": ["X", ""],
+      "description": "Checkbox: Hallucinations."
+    },
+    "psych_delusions": {
+      "type": "string",
+      "enum": ["X", ""],
+      "description": "Checkbox: Delusions."
+    },
+    "psych_verbally_aggressive": {
+      "type": "string",
+      "enum": ["X", ""],
+      "description": "Checkbox: Verbally aggressive."
+    },
+    "psych_physically_aggressive": {
+      "type": "string",
+      "enum": ["X", ""],
+      "description": "Checkbox: Physically aggressive."
+    },
+    "psych_inappropriate_behavior": {
+      "type": "string",
+      "enum": ["X", ""],
+      "description": "Checkbox: Inappropriate/unsafe behavior."
+    },
+    "psych_suicidal_ideation": {
+      "type": "string",
+      "enum": ["X", ""],
+      "description": "Checkbox: Suicidal ideation."
+    },
+    "psych_difficulty_unfamiliar": {
+      "type": "string",
+      "enum": ["X", ""],
+      "description": "Checkbox: Difficulty in new/unfamiliar situations."
+    },
+    "psych_disrobing": {
+      "type": "string",
+      "enum": ["X", ""],
+      "description": "Checkbox: Disrobing."
+    },
+    "psych_weeping_crying": {
+      "type": "string",
+      "enum": ["X", ""],
+      "description": "Checkbox: Weeping/crying."
+    },
+    "psych_unaware_consequences": {
+      "type": "string",
+      "enum": ["X", ""],
+      "description": "Checkbox: Unaware of consequences."
+    },
+    "psych_unrealistic_fears": {
+      "type": "string",
+      "enum": ["X", ""],
+      "description": "Checkbox: Unrealistic fears."
+    },
+    "psych_inappropriate_spitting": {
+      "type": "string",
+      "enum": ["X", ""],
+      "description": "Checkbox: Inappropriate spitting."
+    },
+    "psych_breaks_throws": {
+      "type": "string",
+      "enum": ["X", ""],
+      "description": "Checkbox: Breaks/throws things."
+    },
+    "psych_other_behavior": {
+      "type": "string",
+      "enum": ["X", ""],
+      "description": "Checkbox: Other behavior."
+    },
+    "psych_other_behavior_desc": {
+      "type": "string",
+      "description": "Description of other behavior."
+    },
+    "psych_requires_psychopharm": {
+      "type": "string",
+      "enum": ["X", ""],
+      "description": "Checkbox: Requires psychopharmacological medications."
+    },
+    "psych_psychopharm_strengths": {
+      "type": "string",
+      "description": "Resident strengths regarding psychopharmacological medication management — e.g., takes medications as prescribed, tolerates medications well, shows improvement with current regimen."
+    },
+    "psych_psychopharm_assistance": {
+      "type": "string",
+      "description": "Caregiver assistance for psychopharmacological medications — e.g., administer as prescribed per MAR, monitor for side effects, document any behavioral changes, report concerns to prescriber."
+    },
+    "psych_crisis_plan": {
+      "type": "string",
+      "enum": ["X", ""],
+      "description": "Checkbox: Behavioral Health Support Crisis Plan attached."
+    },
+    "psych_counseling": {
+      "type": "string",
+      "enum": ["X", ""],
+      "description": "Checkbox: Counseling."
+    },
+    "psych_mhp": {
+      "type": "string",
+      "description": "Mental Health Provider name."
+    },
+    "psych_past_behaviors": {
+      "type": "string",
+      "description": "History of past behaviors."
+    },
+    "psych_dshs_meaningful_day": {
+      "type": "string",
+      "enum": ["X", ""],
+      "description": "Checkbox: DSHS Meaningful Day program."
+    },
+    "psych_dshs_ecs": {
+      "type": "string",
+      "enum": ["X", ""],
+      "description": "Checkbox: DSHS Expanded Community Services."
+    },
+    "psych_dshs_sbs": {
+      "type": "string",
+      "enum": ["X", ""],
+      "description": "Checkbox: DSHS Specialized Behavior Services."
+    },
+    "psych_dshs_mhp": {
+      "type": "string",
+      "enum": ["X", ""],
+      "description": "Checkbox: DSHS Mental Health Provider program."
+    },
+    "psych_dshs_contact_info": {
+      "type": "string",
+      "description": "Contact info for specialized behavioral programs."
+    },
+    "psych_dshs_programs_strengths": {
+      "type": "string",
+      "description": "Strengths related to DSHS specialized programs."
+    },
+    "psych_dshs_programs_assistance": {
+      "type": "string",
+      "description": "Caregiver actions to support DSHS programs."
+    },
+    "activities_other": {
+      "type": "string",
+      "enum": ["X", ""],
+      "description": "Checkbox: Other interventions."
+    },
+    "activities_other_desc": {
+      "type": "string",
+      "description": "Description of other interventions."
+    },
+    "psych_interventions_strengths": {
+      "type": "string",
+      "description": "Strengths regarding psychological interventions."
+    },
+    "psych_interventions_assistance": {
+      "type": "string",
+      "description": "Caregiver actions for psychological interventions."
+    },
+    "psych_typical_day_narrative": {
+      "type": "string",
+      "description": "Narrative describing the resident's typical day."
+    },
+    "left_alone_strengths": {
+      "type": "string",
+      "description": "Strengths regarding the resident's ability to be left unattended."
+    },
+    "left_alone_assistance": {
+      "type": "string",
+      "description": "Caregiver actions regarding leaving resident alone safely."
+    },
+    "mobility_special_precautions": {
+      "type": "string",
+      "enum": ["X", ""],
+      "description": "Checkbox: Special Precautions required."
+    },
+    "mobility_alt_visitation": {
+      "type": "string",
+      "enum": ["X", ""],
+      "description": "Checkbox: Alternative method for visitation."
+    },
+    "mobility_mask_able": {
+      "type": "string",
+      "enum": ["X", ""],
+      "description": "Checkbox: Able to wear a mask."
+    },
+    "mobility_mask_not_able": {
+      "type": "string",
+      "enum": ["X", ""],
+      "description": "Checkbox: Not able to wear a mask."
+    },
+    "mobility_safe_sanitizer": {
+      "type": "string",
+      "enum": ["X", ""],
+      "description": "Checkbox: Safe to have hand sanitizer left out."
+    },
+    "mobility_vaccinated": {
+      "type": "string",
+      "enum": ["X", ""],
+      "description": "Checkbox: Up to date on vaccinations."
+    },
+    "mobility_shares_equipment": {
+      "type": "string",
+      "enum": ["X", ""],
+      "description": "Checkbox: Shares medical equipment."
+    },
+    "mobility_shared_equipment_desc": {
+      "type": "string",
+      "description": "Description of shared medical equipment."
+    },
+    "mobility_other_infection": {
+      "type": "string",
+      "enum": ["X", ""],
+      "description": "Checkbox: Other infection control precautions."
+    },
+    "mobility_other_infection_desc": {
+      "type": "string",
+      "description": "Description of other infection control precautions."
+    },
+    "universal_precautions_strengths": {
+      "type": "string",
+      "description": "Resident's strengths regarding infection control."
+    },
+    "universal_precautions_assistance": {
+      "type": "string",
+      "description": "Caregiver actions for maintaining universal precautions."
+    },
+    "adl_functional_limitations": {
+      "type": "string",
+      "description": "General summary of physical/medical limitations impacting ADLs."
+    },
+    "mobility_room_independent": {
+      "type": "string",
+      "enum": ["X", ""],
+      "description": "Checkbox: Independent room locomotion."
+    },
+    "mobility_room_supervision": {
+      "type": "string",
+      "enum": ["X", ""],
+      "description": "Checkbox: Supervision needed for room locomotion."
+    },
+    "mobility_room_assistance": {
+      "type": "string",
+      "enum": ["X", ""],
+      "description": "Checkbox: Assistance needed for room locomotion."
+    },
+    "mobility_room_dependent": {
+      "type": "string",
+      "enum": ["X", ""],
+      "description": "Checkbox: Totally dependent for room locomotion."
+    },
+    "mobility_outside_independent": {
+      "type": "string",
+      "enum": ["X", ""],
+      "description": "Checkbox: Independent outside locomotion."
+    },
+    "mobility_outside_supervision": {
+      "type": "string",
+      "enum": ["X", ""],
+      "description": "Checkbox: Supervision needed for outside locomotion."
+    },
+    "mobility_outside_assistance": {
+      "type": "string",
+      "enum": ["X", ""],
+      "description": "Checkbox: Assistance needed for outside locomotion."
+    },
+    "mobility_outside_dependent": {
+      "type": "string",
+      "enum": ["X", ""],
+      "description": "Checkbox: Totally dependent for outside locomotion."
+    },
+    "mobility_fall_risk": {
+      "type": "string",
+      "enum": ["X", ""],
+      "description": "Checkbox: Risk for falls (Ambulation)."
+    },
+    "mobility_fall_prevention_plan": {
+      "type": "string",
+      "enum": ["X", ""],
+      "description": "Checkbox: Has fall prevention plan."
+    },
+    "mobility_fall_prevention_plan_desc": {
+      "type": "string",
+      "description": "Details of the fall prevention plan."
+    },
+    "mobility_bedroom_lock": {
+      "type": "string",
+      "enum": ["X", ""],
+      "description": "Checkbox: Resident chooses bedroom door lock."
+    },
+    "mobility_equipment_vendor": {
+      "type": "string",
+      "description": "Vendor for mobility equipment."
+    },
+    "mobility_limitations": {
+      "type": "string",
+      "description": "Physical limitations related to ambulation."
+    },
+    "mobility_strengths_abilities": {
+      "type": "string",
+      "description": "Strengths/abilities for ambulation/mobility."
+    },
+    "mobility_caregiver_actions": {
+      "type": "string",
+      "description": "Caregiver actions for ambulation/mobility assistance."
+    },
+    "bed_mobility_independent": {
+      "type": "string",
+      "enum": ["X", ""],
+      "description": "Checkbox: Independent bed mobility/transfer."
+    },
+    "bed_mobility_supervision": {
+      "type": "string",
+      "enum": ["X", ""],
+      "description": "Checkbox: Supervision needed for bed mobility/transfer."
+    },
+    "bed_mobility_assistance": {
+      "type": "string",
+      "enum": ["X", ""],
+      "description": "Checkbox: Assistance needed for bed mobility/transfer."
+    },
+    "bed_mobility_dependent": {
+      "type": "string",
+      "enum": ["X", ""],
+      "description": "Checkbox: Totally dependent for bed mobility/transfer."
+    },
+    "bed_mobility_skin_care": {
+      "type": "string",
+      "enum": ["X", ""],
+      "description": "Checkbox: Skin care required due to inability to position self."
+    },
+    "bed_mobility_skin_care_desc": {
+      "type": "string",
+      "description": "Description of bed mobility skin care needs."
+    },
+    "bed_mobility_equipment": {
+      "type": "string",
+      "description": "Equipment used for bed mobility (e.g., bed rails)."
+    },
+    "bed_mobility_turning": {
+      "type": "string",
+      "enum": ["X", ""],
+      "description": "Checkbox: Turning and repositioning needed."
+    },
+    "bed_mobility_turning_frequency": {
+      "type": "string",
+      "description": "Frequency of turning/repositioning."
+    },
+    "bed_mobility_safety_assessment": {
+      "type": "string",
+      "enum": ["X", ""],
+      "description": "Checkbox: Safety assessment explored."
+    },
+    "bed_mobility_safety_desc": {
+      "type": "string",
+      "description": "Description of bed safety alternatives and plans."
+    },
+    "mobility_risks_for_falls": {
+      "type": "string",
+      "enum": ["X", ""],
+      "description": "Checkbox: Risks for falls from bed."
+    },
+    "mobility_fall_risks_desc": {
+      "type": "string",
+      "description": "Description of bed fall risks."
+    },
+    "mobility_safety_plan": {
+      "type": "string",
+      "enum": ["X", ""],
+      "description": "Checkbox: Bed mobility safety plan."
+    },
+    "mobility_medical_devices": {
+      "type": "string",
+      "enum": ["X", ""],
+      "description": "Checkbox: Uses medical devices for bed mobility."
+    },
+    "mobility_enablers": {
+      "type": "string",
+      "enum": ["X", ""],
+      "description": "Checkbox: Uses enablers for bed mobility."
+    },
+    "mobility_enablers_desc": {
+      "type": "string",
+      "description": "Description of bed mobility enablers."
+    },
+    "mobility_hoyer_lift": {
+      "type": "string",
+      "enum": ["X", ""],
+      "description": "Checkbox: Requires Hoyer lift."
+    },
+    "mobility_transfer_pole": {
+      "type": "string",
+      "enum": ["X", ""],
+      "description": "Checkbox: Requires transfer pole."
+    },
+    "mobility_device_risk_assessment": {
+      "type": "string",
+      "enum": ["X", ""],
+      "description": "Checkbox: Device risk assessment completed."
+    },
+    "mobility_device_risk_desc": {
+      "type": "string",
+      "description": "Description of device risk assessment."
+    },
+    "mobility_nighttime_care": {
+      "type": "string",
+      "enum": ["X", ""],
+      "description": "Checkbox: Nighttime care needs."
+    },
+    "mobility_nighttime_equipment": {
+      "type": "string",
+      "description": "Equipment needed for nighttime care."
+    },
+    "bed_mobility_strengths_abilities": {
+      "type": "string",
+      "description": "Strengths/abilities for bed mobility and transfers."
+    },
+    "bed_mobility_caregiver_actions": {
+      "type": "string",
+      "description": "Caregiver actions for bed mobility and transfers."
+    },
+    "eating_independent": {
+      "type": "string",
+      "enum": ["X", ""],
+      "description": "Checkbox: Independent eating."
+    },
+    "eating_supervision": {
+      "type": "string",
+      "enum": ["X", ""],
+      "description": "Checkbox: Supervision needed for eating."
+    },
+    "eating_assistance": {
+      "type": "string",
+      "enum": ["X", ""],
+      "description": "Checkbox: Assistance needed for eating."
+    },
+    "eating_dependent": {
+      "type": "string",
+      "enum": ["X", ""],
+      "description": "Checkbox: Totally dependent for eating."
+    },
+    "eating_special_diet": {
+      "type": "string",
+      "enum": ["X", ""],
+      "description": "Checkbox: Requires special diet/supplements."
+    },
+    "eating_special_diet_desc": {
+      "type": "string",
+      "description": "Description of special diet/supplements."
+    },
+    "eating_habits": {
+      "type": "string",
+      "enum": ["X", ""],
+      "description": "Checkbox: Specific eating habits."
+    },
+    "eating_habits_desc": {
+      "type": "string",
+      "description": "Description of eating habits."
+    },
+    "eating_food_allergies": {
+      "type": "string",
+      "enum": ["X", ""],
+      "description": "Checkbox: Has food allergies."
+    },
+    "eating_food_allergies_desc": {
+      "type": "string",
+      "description": "Description of food allergies."
+    },
+    "eating_equipment": {
+      "type": "string",
+      "enum": ["X", ""],
+      "description": "Checkbox: Uses special eating equipment."
+    },
+    "eating_equipment_desc": {
+      "type": "string",
+      "description": "Description of eating equipment/procedures."
+    },
+    "eating_limitations": {
+      "type": "string",
+      "description": "Limitations impacting eating."
+    },
+    "eating_strengths_abilities": {
+      "type": "string",
+      "description": "Strengths/abilities for eating."
+    },
+    "eating_caregiver_actions": {
+      "type": "string",
+      "description": "Caregiver actions for eating assistance."
+    },
+    "toileting_independent": {
+      "type": "string",
+      "enum": ["X", ""],
+      "description": "Checkbox: Independent toileting."
+    },
+    "toileting_supervision": {
+      "type": "string",
+      "enum": ["X", ""],
+      "description": "Checkbox: Supervision needed for toileting."
+    },
+    "toileting_assistance": {
+      "type": "string",
+      "enum": ["X", ""],
+      "description": "Checkbox: Assistance needed for toileting."
+    },
+    "toileting_dependent": {
+      "type": "string",
+      "enum": ["X", ""],
+      "description": "Checkbox: Totally dependent for toileting."
+    },
+    "toileting_frequency": {
+      "type": "string",
+      "description": "Frequency of toileting needs."
+    },
+    "toileting_bladder_incontinence": {
+      "type": "string",
+      "enum": ["X", ""],
+      "description": "Checkbox: Bladder incontinence."
+    },
+    "toileting_bowel_incontinence": {
+      "type": "string",
+      "enum": ["X", ""],
+      "description": "Checkbox: Bowel incontinence."
+    },
+    "toileting_skin_care_incontinence": {
+      "type": "string",
+      "enum": ["X", ""],
+      "description": "Checkbox: Skin care needed due to incontinence."
+    },
+    "toileting_equipment": {
+      "type": "string",
+      "description": "Equipment used for toileting (e.g., commode, briefs)."
+    },
+    "toileting_limitations": {
+      "type": "string",
+      "description": "Limitations impacting toileting."
+    },
+    "toileting_strengths_abilities": {
+      "type": "string",
+      "description": "Strengths/abilities for toileting."
+    },
+    "toileting_caregiver_actions": {
+      "type": "string",
+      "description": "Caregiver actions for toileting and continence care."
+    },
+    "dressing_independent": {
+      "type": "string",
+      "enum": ["X", ""],
+      "description": "Checkbox: Independent dressing."
+    },
+    "dressing_supervision": {
+      "type": "string",
+      "enum": ["X", ""],
+      "description": "Checkbox: Supervision needed for dressing."
+    },
+    "dressing_assistance": {
+      "type": "string",
+      "enum": ["X", ""],
+      "description": "Checkbox: Assistance needed for dressing."
+    },
+    "dressing_dependent": {
+      "type": "string",
+      "enum": ["X", ""],
+      "description": "Checkbox: Totally dependent for dressing."
+    },
+    "dressing_equipment": {
+      "type": "string",
+      "description": "Equipment used for dressing."
+    },
+    "dressing_limitations": {
+      "type": "string",
+      "description": "Limitations impacting dressing."
+    },
+    "dressing_strengths_abilities": {
+      "type": "string",
+      "description": "Strengths/abilities for dressing."
+    },
+    "dressing_caregiver_actions": {
+      "type": "string",
+      "description": "Caregiver actions for dressing assistance."
+    },
+    "hygiene_independent": {
+      "type": "string",
+      "enum": ["X", ""],
+      "description": "Checkbox: Independent hygiene."
+    },
+    "hygiene_supervision": {
+      "type": "string",
+      "enum": ["X", ""],
+      "description": "Checkbox: Supervision needed for hygiene."
+    },
+    "hygiene_assistance": {
+      "type": "string",
+      "enum": ["X", ""],
+      "description": "Checkbox: Assistance needed for hygiene."
+    },
+    "hygiene_dependent": {
+      "type": "string",
+      "enum": ["X", ""],
+      "description": "Checkbox: Totally dependent for hygiene."
+    },
+    "hygiene_own_teeth": {
+      "type": "string",
+      "enum": ["X", ""],
+      "description": "Checkbox: Has own teeth."
+    },
+    "hygiene_partials": {
+      "type": "string",
+      "enum": ["X", ""],
+      "description": "Checkbox: Has partials."
+    },
+    "hygiene_dentures": {
+      "type": "string",
+      "enum": ["X", ""],
+      "description": "Checkbox: Has dentures."
+    },
+    "hygiene_oral": {
+      "type": "string",
+      "enum": ["X", ""],
+      "description": "Checkbox: Requires oral hygiene assistance."
+    },
+    "hygiene_oral_desc": {
+      "type": "string",
+      "description": "Description of oral hygiene routine."
+    },
+    "hygiene_flossing": {
+      "type": "string",
+      "enum": ["X", ""],
+      "description": "Checkbox: Requires flossing assistance."
+    },
+    "hygiene_brushing": {
+      "type": "string",
+      "enum": ["X", ""],
+      "description": "Checkbox: Requires brushing assistance."
+    },
+    "foot_care_soaking": {
+      "type": "string",
+      "enum": ["X", ""],
+      "description": "Checkbox: Requires soaking assistance."
+    },
+    "hygiene_hair_care": {
+      "type": "string",
+      "enum": ["X", ""],
+      "description": "Checkbox: Requires hair care assistance."
+    },
+    "hygiene_hair_care_desc": {
+      "type": "string",
+      "description": "Description of hair care needs."
+    },
+    "hygiene_menses_care": {
+      "type": "string",
+      "enum": ["X", ""],
+      "description": "Checkbox: Requires menses care."
+    },
+    "hygiene_menses_care_desc": {
+      "type": "string",
+      "description": "Description of menses care needs."
+    },
+    "hygiene_when_how_often": {
+      "type": "string",
+      "description": "Frequency of personal hygiene tasks."
+    },
+    "hygiene_equipment": {
+      "type": "string",
+      "description": "Equipment used for personal hygiene."
+    },
+    "hygiene_limitations": {
+      "type": "string",
+      "description": "Limitations impacting personal hygiene."
+    },
+    "hygiene_strengths_abilities": {
+      "type": "string",
+      "description": "Strengths/abilities for personal hygiene."
+    },
+    "hygiene_caregiver_actions": {
+      "type": "string",
+      "description": "Caregiver actions for personal hygiene."
+    },
+    "bathing_independent": {
+      "type": "string",
+      "enum": ["X", ""],
+      "description": "Checkbox: Independent bathing."
+    },
+    "bathing_supervision": {
+      "type": "string",
+      "enum": ["X", ""],
+      "description": "Checkbox: Supervision needed for bathing."
+    },
+    "bathing_assistance": {
+      "type": "string",
+      "enum": ["X", ""],
+      "description": "Checkbox: Assistance needed for bathing."
+    },
+    "bathing_dependent": {
+      "type": "string",
+      "enum": ["X", ""],
+      "description": "Checkbox: Totally dependent for bathing."
+    },
+    "bathing_when_how_often": {
+      "type": "string",
+      "description": "Frequency of bathing."
+    },
+    "bathing_equipment": {
+      "type": "string",
+      "description": "Equipment used for bathing (e.g., shower chair)."
+    },
+    "bathing_limitations": {
+      "type": "string",
+      "description": "Limitations impacting bathing."
+    },
+    "bathing_strengths_abilities": {
+      "type": "string",
+      "description": "Strengths/abilities for bathing."
+    },
+    "bathing_caregiver_actions": {
+      "type": "string",
+      "description": "Caregiver actions for bathing."
+    },
+    "foot_care_independent": {
+      "type": "string",
+      "enum": ["X", ""],
+      "description": "Checkbox: Independent foot care."
+    },
+    "foot_care_supervision": {
+      "type": "string",
+      "enum": ["X", ""],
+      "description": "Checkbox: Supervision needed for foot care."
+    },
+    "foot_care_assistance": {
+      "type": "string",
+      "enum": ["X", ""],
+      "description": "Checkbox: Assistance needed for foot care."
+    },
+    "foot_care_dependent": {
+      "type": "string",
+      "enum": ["X", ""],
+      "description": "Checkbox: Totally dependent for foot care."
+    },
+    "foot_care_non_diabetic": {
+      "type": "string",
+      "enum": ["X", ""],
+      "description": "Checkbox: Non-diabetic foot care."
+    },
+    "foot_care_how_often": {
+      "type": "string",
+      "description": "Frequency of foot care."
+    },
+    "foot_care_diabetic": {
+      "type": "string",
+      "enum": ["X", ""],
+      "description": "Checkbox: Diabetic foot care."
+    },
+    "skin_nail_care": {
+      "type": "string",
+      "enum": ["X", ""],
+      "description": "Checkbox: Nail care required."
+    },
+    "skin_nail_when_how_often": {
+      "type": "string",
+      "description": "Frequency of nail care."
+    },
+    "skin_home_health_agency": {
+      "type": "string",
+      "enum": ["X", ""],
+      "description": "Checkbox: Home health agency provides skin/foot care."
+    },
+    "foot_care_strengths_abilities": {
+      "type": "string",
+      "description": "Strengths/abilities for foot care."
+    },
+    "foot_care_caregiver_actions": {
+      "type": "string",
+      "description": "Caregiver actions for foot care."
+    },
+    "skin_care_independent": {
+      "type": "string",
+      "enum": ["X", ""],
+      "description": "Checkbox: Independent skin care."
+    },
+    "skin_care_supervision": {
+      "type": "string",
+      "enum": ["X", ""],
+      "description": "Checkbox: Supervision needed for skin care."
+    },
+    "skin_care_assistance": {
+      "type": "string",
+      "enum": ["X", ""],
+      "description": "Checkbox: Assistance needed for skin care."
+    },
+    "skin_care_dependent": {
+      "type": "string",
+      "enum": ["X", ""],
+      "description": "Checkbox: Totally dependent for skin care."
+    },
+    "skin_care_routine": {
+      "type": "string",
+      "enum": ["X", ""],
+      "description": "Checkbox: Requires a routine skin care plan."
+    },
+    "skin_care_how_often": {
+      "type": "string",
+      "description": "Frequency of skin care."
+    },
+    "skin_care_status": {
+      "type": "string",
+      "enum": ["X", ""],
+      "description": "Checkbox: Track skin care status."
+    },
+    "skin_care_status_desc": {
+      "type": "string",
+      "description": "Description of overall skin status."
+    },
+    "skin_problems": {
+      "type": "string",
+      "enum": ["X", ""],
+      "description": "Checkbox: Resident has skin problems."
+    },
+    "skin_problems_describe": {
+      "type": "string",
+      "description": "Description of skin problems."
+    },
+    "skin_problems_status": {
+      "type": "string",
+      "enum": ["X", ""],
+      "description": "Checkbox: Track status of skin problems."
+    },
+    "skin_problems_status_desc": {
+      "type": "string",
+      "description": "Description of the status of skin problems."
+    },
+    "skin_pressure_injuries": {
+      "type": "string",
+      "enum": ["X", ""],
+      "description": "Checkbox: Resident has pressure injuries."
+    },
+    "skin_pressure_injuries_describe": {
+      "type": "string",
+      "description": "Description of pressure injuries."
+    },
+    "skin_dressing_changes": {
+      "type": "string",
+      "enum": ["X", ""],
+      "description": "Checkbox: Dressing changes required."
+    },
+    "skin_dressing_how_often": {
+      "type": "string",
+      "description": "Frequency of dressing changes."
+    },
+    "skin_dressing_nurse_delegated": {
+      "type": "string",
+      "enum": ["X", ""],
+      "description": "Checkbox: Dressing changes are nurse delegated."
+    },
+    "skin_care_strengths_abilities": {
+      "type": "string",
+      "description": "Strengths/abilities for skin care."
+    },
+    "skin_care_caregiver_actions": {
+      "type": "string",
+      "description": "Caregiver actions for skin care."
+    },
+    "iadl_finances_independent": {
+      "type": "string",
+      "enum": ["X", ""],
+      "description": "Checkbox: Independent with finances."
+    },
+    "iadl_finances_assistance": {
+      "type": "string",
+      "enum": ["X", ""],
+      "description": "Checkbox: Assistance needed with finances."
+    },
+    "iadl_finances_dependent": {
+      "type": "string",
+      "enum": ["X", ""],
+      "description": "Checkbox: Dependent for managing finances."
+    },
+    "iadl_who_manages_finances": {
+      "type": "string",
+      "enum": ["X", ""],
+      "description": "Checkbox: Field designating who manages finances."
+    },
+    "iadl_who_manages_finances_desc": {
+      "type": "string",
+      "description": "Name/role of person managing finances."
+    },
+    "iadl_who_manages_records": {
+      "type": "string",
+      "enum": ["X", ""],
+      "description": "Checkbox: Field designating who manages financial records."
+    },
+    "iadl_who_manages_records_desc": {
+      "type": "string",
+      "description": "Name/role of person managing records."
+    },
+    "iadl_payee": {
+      "type": "string",
+      "enum": ["X", ""],
+      "description": "Checkbox: Field designating the Payee."
+    },
+    "iadl_payee_desc": {
+      "type": "string",
+      "description": "Name and contact info of the Payee."
+    },
+    "iadl_finances_strengths_abilities": {
+      "type": "string",
+      "description": "Strengths/abilities for managing finances."
+    },
+    "iadl_finances_prefers_independent": {
+      "type": "string",
+      "description": "What the resident prefers to do independently regarding finances."
+    },
+    "iadl_finances_caregiver_actions": {
+      "type": "string",
+      "description": "Caregiver actions for finance management."
+    },
+    "iadl_shopping_independent": {
+      "type": "string",
+      "enum": ["X", ""],
+      "description": "Checkbox: Independent with shopping."
+    },
+    "iadl_shopping_assistance": {
+      "type": "string",
+      "enum": ["X", ""],
+      "description": "Checkbox: Assistance needed with shopping."
+    },
+    "iadl_shopping_dependent": {
+      "type": "string",
+      "enum": ["X", ""],
+      "description": "Checkbox: Dependent for shopping."
+    },
+    "iadl_shopping_special_transport": {
+      "type": "string",
+      "enum": ["X", ""],
+      "description": "Checkbox: Special transport needed for shopping."
+    },
+    "iadl_shopping_how_often": {
+      "type": "string",
+      "description": "Frequency of shopping trips."
+    },
+    "iadl_shopping_equipment": {
+      "type": "string",
+      "description": "Equipment used for shopping."
+    },
+    "iadl_shopping_limitations": {
+      "type": "string",
+      "description": "Limitations impacting shopping."
+    },
+    "iadl_shopping_strengths_abilities": {
+      "type": "string",
+      "description": "Strengths/abilities for shopping."
+    },
+    "iadl_shopping_caregiver_actions": {
+      "type": "string",
+      "description": "Caregiver actions for shopping assistance."
+    },
+    "iadl_transport_independent": {
+      "type": "string",
+      "enum": ["X", ""],
+      "description": "Checkbox: Independent with transportation."
+    },
+    "iadl_transport_assistance": {
+      "type": "string",
+      "enum": ["X", ""],
+      "description": "Checkbox: Assistance needed for transportation."
+    },
+    "iadl_transport_dependent": {
+      "type": "string",
+      "enum": ["X", ""],
+      "description": "Checkbox: Dependent for transportation."
+    },
+    "iadl_transport_medical": {
+      "type": "string",
+      "enum": ["X", ""],
+      "description": "Checkbox: Needs transport for medical services."
+    },
+    "iadl_transport_medical_desc": {
+      "type": "string",
+      "description": "Description of medical transport needs."
+    },
+    "iadl_transport_special_needs": {
+      "type": "string",
+      "enum": ["X", ""],
+      "description": "Checkbox: Special transportation needs."
+    },
+    "iadl_transport_escort": {
+      "type": "string",
+      "enum": ["X", ""],
+      "description": "Checkbox: Transport escort required."
+    },
+    "iadl_transport_how_often": {
+      "type": "string",
+      "description": "Frequency of transportation needs."
+    },
+    "iadl_transport_equipment": {
+      "type": "string",
+      "description": "Equipment used for transportation (e.g., wheelchair van)."
+    },
+    "iadl_transport_limitations": {
+      "type": "string",
+      "description": "Limitations impacting transportation."
+    },
+    "iadl_transportation_strengths_abilities": {
+      "type": "string",
+      "description": "Strengths/abilities for transportation."
+    },
+    "iadl_transportation_caregiver_actions": {
+      "type": "string",
+      "description": "Caregiver actions for transportation assistance."
+    },
+    "activities_independent": {
+      "type": "string",
+      "enum": ["X", ""],
+      "description": "Checkbox: Independent with activities."
+    },
+    "activities_assistance": {
+      "type": "string",
+      "enum": ["X", ""],
+      "description": "Checkbox: Assistance needed with activities."
+    },
+    "activities_dependent": {
+      "type": "string",
+      "enum": ["X", ""],
+      "description": "Checkbox: Dependent for activities."
+    },
+    "activities_interests": {
+      "type": "string",
+      "enum": ["X", ""],
+      "description": "Checkbox: Field for general interests/religious activities."
+    },
+    "activities_interests_desc": {
+      "type": "string",
+      "description": "Description of interests and religious activities."
+    },
+    "activities_cultural": {
+      "type": "string",
+      "enum": ["X", ""],
+      "description": "Checkbox: Field for cultural traditions."
+    },
+    "activities_cultural_desc": {
+      "type": "string",
+      "description": "Description of cultural traditions and preferences."
+    },
+    "activities_family": {
+      "type": "string",
+      "enum": ["X", ""],
+      "description": "Checkbox: Field for family/friends."
+    },
+    "activities_family_desc": {
+      "type": "string",
+      "description": "Description of family/friend relationships."
+    },
+    "activities_employment": {
+      "type": "string",
+      "enum": ["X", ""],
+      "description": "Checkbox: Field for employment support."
+    },
+    "activities_employment_desc": {
+      "type": "string",
+      "description": "Description of employment support."
+    },
+    "activities_clubs": {
+      "type": "string",
+      "enum": ["X", ""],
+      "description": "Checkbox: Field for clubs/groups."
+    },
+    "activities_clubs_desc": {
+      "type": "string",
+      "description": "Description of clubs or groups."
+    },
+    "activities_special": {
+      "type": "string",
+      "enum": ["X", ""],
+      "description": "Checkbox: Field for special activity arrangements."
+    },
+    "activities_special_desc": {
+      "type": "string",
+      "description": "Description of special activity arrangements."
+    },
+    "activities_participation": {
+      "type": "string",
+      "enum": ["X", ""],
+      "description": "Checkbox: Field for participation issues."
+    },
+    "activities_participation_desc": {
+      "type": "string",
+      "description": "Description of participation issues."
+    },
+    "activities_social_strengths_abilities": {
+      "type": "string",
+      "description": "Strengths/abilities for social activities."
+    },
+    "activities_social_caregiver_actions": {
+      "type": "string",
+      "description": "Caregiver actions to support social activities."
+    },
+    "activities_social_special_arrangements": {
+      "type": "string",
+      "description": "Special arrangements needed for social participation."
+    },
+    "activities_social_participation_assistance": {
+      "type": "string",
+      "description": "Specific assistance to help resident actively participate."
+    },
+    "activities_reading": {
+      "type": "string",
+      "enum": ["X", ""],
+      "description": "Checkbox: Activity preference - Reading."
+    },
+    "activities_audio": {
+      "type": "string",
+      "enum": ["X", ""],
+      "description": "Checkbox: Activity preference - Audiobooks/Podcasts."
+    },
+    "activities_storytelling": {
+      "type": "string",
+      "enum": ["X", ""],
+      "description": "Checkbox: Activity preference - Storytelling."
+    },
+    "activities_phone": {
+      "type": "string",
+      "enum": ["X", ""],
+      "description": "Checkbox: Activity preference - Phone visiting."
+    },
+    "activities_reminiscing": {
+      "type": "string",
+      "enum": ["X", ""],
+      "description": "Checkbox: Activity preference - Reminiscing."
+    },
+    "activities_current_events": {
+      "type": "string",
+      "enum": ["X", ""],
+      "description": "Checkbox: Activity preference - Current events."
+    },
+    "activities_discussion": {
+      "type": "string",
+      "enum": ["X", ""],
+      "description": "Checkbox: Activity preference - Discussion group."
+    },
+    "activities_bible_church": {
+      "type": "string",
+      "enum": ["X", ""],
+      "description": "Checkbox: Activity preference - Bible study/church."
+    },
+    "activities_visitors": {
+      "type": "string",
+      "enum": ["X", ""],
+      "description": "Checkbox: Activity preference - Visitors."
+    },
+    "activities_gardening": {
+      "type": "string",
+      "enum": ["X", ""],
+      "description": "Checkbox: Activity preference - Gardening."
+    },
+    "activities_outings": {
+      "type": "string",
+      "enum": ["X", ""],
+      "description": "Checkbox: Activity preference - Outings."
+    },
+    "activities_zoos_pets": {
+      "type": "string",
+      "enum": ["X", ""],
+      "description": "Checkbox: Activity preference - Zoos/Pets."
+    },
+    "activities_exercises": {
+      "type": "string",
+      "enum": ["X", ""],
+      "description": "Checkbox: Activity preference - Exercises."
+    },
+    "activities_walking": {
+      "type": "string",
+      "enum": ["X", ""],
+      "description": "Checkbox: Activity preference - Walking."
+    },
+    "activities_cooking": {
+      "type": "string",
+      "enum": ["X", ""],
+      "description": "Checkbox: Activity preference - Cooking."
+    },
+    "activities_chores": {
+      "type": "string",
+      "enum": ["X", ""],
+      "description": "Checkbox: Activity preference - Chores."
+    },
+    "activities_tv": {
+      "type": "string",
+      "enum": ["X", ""],
+      "description": "Checkbox: Activity preference - TV/Movies."
+    },
+    "activities_parties": {
+      "type": "string",
+      "enum": ["X", ""],
+      "description": "Checkbox: Activity preference - Parties."
+    },
+    "activities_arts_crafts": {
+      "type": "string",
+      "enum": ["X", ""],
+      "description": "Checkbox: Activity preference - Arts/Crafts."
+    },
+    "activities_games": {
+      "type": "string",
+      "enum": ["X", ""],
+      "description": "Checkbox: Activity preference - Games/Puzzles."
+    },
+    "activities_beauty": {
+      "type": "string",
+      "enum": ["X", ""],
+      "description": "Checkbox: Activity preference - Beauty time."
+    },
+    "activities_music": {
+      "type": "string",
+      "enum": ["X", ""],
+      "description": "Checkbox: Activity preference - Music."
+    },
+    "activities_community": {
+      "type": "string",
+      "enum": ["X", ""],
+      "description": "Checkbox: Activity preference - Community Integration."
+    },
+    "activities_other_2": {
+      "type": "string",
+      "enum": ["X", ""],
+      "description": "Checkbox: Other activity preference 2."
+    },
+    "activities_other_2_desc": {
+      "type": "string",
+      "description": "Description of other activity 2."
+    },
+    "activities_other_3": {
+      "type": "string",
+      "enum": ["X", ""],
+      "description": "Checkbox: Other activity preference 3."
+    },
+    "activities_other_3_desc": {
+      "type": "string",
+      "description": "Description of other activity 3."
+    },
+    "activity_narrative": {
+      "type": "string",
+      "description": "Narrative summarizing resident's activity preferences."
+    },
+    "safety_resident_smokes": {
+      "type": "string",
+      "enum": ["X", ""],
+      "description": "Checkbox: Resident smokes."
+    },
+    "safety_concerns": {
+      "type": "string",
+      "enum": ["X", ""],
+      "description": "Checkbox: Safety concerns regarding smoking."
+    },
+    "safety_concerns_desc": {
+      "type": "string",
+      "description": "Description of smoking safety concerns."
+    },
+    "safety_smoking_policy": {
+      "type": "string",
+      "enum": ["X", ""],
+      "description": "Checkbox: Smoking policy reviewed."
+    },
+    "safety_cigarette_storage": {
+      "type": "string",
+      "description": "Where cigarettes/lighter are stored."
+    },
+    "safety_smoking_strengths_abilities": {
+      "type": "string",
+      "description": "Strengths/abilities regarding safe smoking."
+    },
+    "safety_smoking_caregiver_actions": {
+      "type": "string",
+      "description": "Caregiver actions for smoking safety."
+    },
+    "case_management": {
+      "type": "string",
+      "enum": ["X", ""],
+      "description": "Checkbox: Resident receives case management."
+    },
+    "case_management_name": {
+      "type": "string",
+      "description": "Case Manager Name."
+    },
+    "case_management_agency": {
+      "type": "string",
+      "description": "Case Management Agency."
+    },
+    "case_management_phone": {
+      "type": "string",
+      "description": "Case Management Phone."
+    },
+    "case_management_strengths": {
+      "type": "string",
+      "description": "Resident strengths related to case management — e.g., engaged in care planning, communicates needs to case manager, benefits from consistent case management support."
+    },
+    "sig_resident": {
+      "type": "string",
+      "enum": ["X", ""],
+      "description": "Checkbox: Resident involved in NCP."
+    },
+    "sig_resident_rep": {
+      "type": "string",
+      "enum": ["X", ""],
+      "description": "Checkbox: Resident representative involved in NCP."
+    },
+    "sig_parent": {
+      "type": "string",
+      "enum": ["X", ""],
+      "description": "Checkbox: Parent involved in NCP."
+    },
+    "sig_health_professional": {
+      "type": "string",
+      "enum": ["X", ""],
+      "description": "Checkbox: Health professional involved in NCP."
+    },
+    "sig_other1": {
+      "type": "string",
+      "enum": ["X", ""],
+      "description": "Checkbox: Other individual 1 involved in NCP."
+    },
+    "sig_other1_desc": {
+      "type": "string",
+      "description": "Role/Name of other individual 1."
+    },
+    "sig_other2": {
+      "type": "string",
+      "enum": ["X", ""],
+      "description": "Checkbox: Other individual 2 involved in NCP."
+    },
+    "sig_other2_desc": {
+      "type": "string",
+      "description": "Role/Name of other individual 2."
+    },
+    "sig_other3": {
+      "type": "string",
+      "enum": ["X", ""],
+      "description": "Checkbox: Other individual 3 involved in NCP."
+    },
+    "sig_other3_desc": {
+      "type": "string",
+      "description": "Role/Name of other individual 3."
+    },
+    "sig_resident_verbal_agreed": {
+      "type": "string",
+      "enum": ["X", ""],
+      "description": "Checkbox: Resident verbally agreed to NCP."
+    },
+    "sig_resident_verbal_date": {
+      "type": "string",
+      "description": "Date resident verbally agreed."
+    },
+    "sig_ncp_sent_dshs": {
+      "type": "string",
+      "enum": ["X", ""],
+      "description": "Checkbox: NCP sent to DSHS Case Manager."
+    },
+    "sig_ncp_sent_date": {
+      "type": "string",
+      "description": "Date NCP was sent to DSHS."
+    },
+    "sig_resident_recommendations": {
+      "type": "string",
+      "description": "Recommendations or changes requested by the resident."
+    }
+  }
+}
