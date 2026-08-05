@@ -14,9 +14,7 @@
     "prisma:seed": "node prisma/seed.js",
     "test:pdfjs-import": "node test-pdfjs-import.js",
     "test:coordinate-detection": "node test-coordinate-detection.js",
-    "test:compare-methods": "node compare-detection-methods.js",
-    "migrate:coordinate-dry": "node migrate-to-coordinate-detection.js all",
-    "migrate:coordinate-apply": "node migrate-to-coordinate-detection.js all apply"
+    "test:compare-methods": "node compare-detection-methods.js"
   },
   "dependencies": {
     "@anthropic-ai/sdk": "^0.32.1",

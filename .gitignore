@@ -109,3 +109,40 @@ temp/
 
 # Local Firebase admin key — never commit
 aionboarding-57623-firebase-adminsdk-fbsvc-b6d08ed1dc.json
+
+# Local docs — do not commit
+docs/
+
+# Local templates / product PDFs — do not commit
+*.docx
+AFH_NCP_Template*
+CareAIFlow*.pdf
+
+# Ad-hoc root test scripts — do not commit
+/test-*.js
+/test-*.ps1
+
+# Local PDF helper scripts — do not commit
+/fix-missing-coordinates.js
+/inspect-pdf.js
+/migrate-to-coordinate-detection.js
+
+# Secrets / local junk — do not commit
+docusign_private.key
+*.key
+/=
+/Untitled
+/[internal]/
+/transferring
+/check-pdf-template.js
+/compare-detection-methods.js
+/diagnose-pdf-filling.js
+/download-dancing-script-font.ps1
+/setup-windows.ps1
+/afh_ncp_schema_flat-old.json
+scripts/verify-*
+scripts/check-*
+scripts/fix-*
+*.md
+docs/
+*.docx
