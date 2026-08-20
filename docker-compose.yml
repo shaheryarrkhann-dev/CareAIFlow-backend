@@ -1,0 +1,58 @@
+services:
+  db:
+    image: pgvector/pgvector:pg15
+    container_name: ai-onboarding-db
+    environment:
+      POSTGRES_DB: postgres
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
+    ports:
+      - "5432:5432"
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U postgres -d postgres"]
+      interval: 5s
+      timeout: 5s
+      retries: 20
+
+  redis:
+    image: redis:7-alpine
+    container_name: ai-onboarding-redis
+    ports:
+      - "6379:6379"
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 5s
+      timeout: 3s
+      retries: 20
+
+  app:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: ai-onboarding-app
+    depends_on:
+      db:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+    env_file:
+      - path: .env
+        required: false
+    environment:
+      DATABASE_URL: postgresql://postgres:postgres@db:5432/postgres
+      REDIS_URL: redis://redis:6379
+      RUNNING_IN_DOCKER: "true"
+      # Local compose: existing pgdata volumes often hit P3005 with migrate deploy; db push syncs schema.
+      # Omit in production images; use migrate deploy + baselined DB there.
+      PRISMA_USE_DB_PUSH: "true"
+      # Required when db push would drop/rename columns on a non-empty dev DB (remove if you use a fresh volume).
+      PRISMA_ACCEPT_DATA_LOSS: "true"
+    # If something already uses 4000 locally, set DOCKER_APP_PORT=4001 (or any free port) in .env
+    ports:
+      - "${DOCKER_APP_PORT:-4000}:4000"
+    restart: unless-stopped
+
+volumes:
+  pgdata:

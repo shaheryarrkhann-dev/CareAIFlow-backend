@@ -1,0 +1,25 @@
+{
+  "all_fields": [
+    "resident_age",
+    "resident_date",
+    "resident_guardian_name",
+    "resident_guardian_signature",
+    "resident_guardian_signature_date",
+    "resident_legal_rep_address",
+    "resident_legal_rep_phone",
+    "resident_legal_rep_signature",
+    "resident_legal_representative_signature_date",
+    "resident_name",
+    "resident_or_guardian_signature_date",
+    "resident_or_legal_representative_signature_date",
+    "resident_sex",
+    "resident_signature_date",
+    "resident_signature_withhold_notification",
+    "residents_financial_responsibility",
+    "residents_ideas_input",
+    "residents_key_provided",
+    "residents_mail_services",
+    "residents_personal_property_insurance",
+    "residents_rights_acknowledgment"
+  ]
+}

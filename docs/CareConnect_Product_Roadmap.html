@@ -1,0 +1,907 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>CareConnect AFH — Product Roadmap & Feature Proposal</title>
+  <style>
+    @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap');
+
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+
+    body {
+      font-family: 'Inter', sans-serif;
+      color: #1a1a2e;
+      background: #fff;
+      font-size: 14px;
+      line-height: 1.6;
+    }
+
+    /* ── COVER PAGE ── */
+    .cover {
+      min-height: 100vh;
+      background: linear-gradient(135deg, #1a472a 0%, #2d6a4f 50%, #40916c 100%);
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      align-items: flex-start;
+      padding: 80px;
+      page-break-after: always;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .cover::before {
+      content: '';
+      position: absolute;
+      top: -100px;
+      right: -100px;
+      width: 500px;
+      height: 500px;
+      border-radius: 50%;
+      background: rgba(255,255,255,0.05);
+    }
+
+    .cover::after {
+      content: '';
+      position: absolute;
+      bottom: -150px;
+      right: 100px;
+      width: 350px;
+      height: 350px;
+      border-radius: 50%;
+      background: rgba(255,255,255,0.04);
+    }
+
+    .cover-logo {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      margin-bottom: 80px;
+    }
+
+    .cover-logo-icon {
+      width: 48px;
+      height: 48px;
+      background: rgba(255,255,255,0.15);
+      border-radius: 12px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 24px;
+    }
+
+    .cover-logo-text {
+      color: rgba(255,255,255,0.9);
+      font-size: 18px;
+      font-weight: 600;
+      letter-spacing: 0.3px;
+    }
+
+    .cover-tag {
+      background: rgba(255,255,255,0.15);
+      color: rgba(255,255,255,0.9);
+      font-size: 11px;
+      font-weight: 600;
+      letter-spacing: 2px;
+      text-transform: uppercase;
+      padding: 6px 16px;
+      border-radius: 20px;
+      margin-bottom: 32px;
+      display: inline-block;
+    }
+
+    .cover h1 {
+      font-size: 52px;
+      font-weight: 800;
+      color: #fff;
+      line-height: 1.1;
+      margin-bottom: 24px;
+      max-width: 700px;
+    }
+
+    .cover-subtitle {
+      font-size: 18px;
+      color: rgba(255,255,255,0.75);
+      max-width: 560px;
+      line-height: 1.7;
+      margin-bottom: 60px;
+    }
+
+    .cover-meta {
+      display: flex;
+      gap: 48px;
+    }
+
+    .cover-meta-item label {
+      display: block;
+      font-size: 11px;
+      font-weight: 600;
+      letter-spacing: 1.5px;
+      text-transform: uppercase;
+      color: rgba(255,255,255,0.5);
+      margin-bottom: 4px;
+    }
+
+    .cover-meta-item span {
+      font-size: 15px;
+      font-weight: 500;
+      color: rgba(255,255,255,0.9);
+    }
+
+    /* ── PAGE LAYOUT ── */
+    .page {
+      padding: 64px 72px;
+      page-break-after: always;
+      max-width: 900px;
+      margin: 0 auto;
+    }
+
+    .page:last-child {
+      page-break-after: avoid;
+    }
+
+    /* ── SECTION HEADER ── */
+    .section-label {
+      font-size: 11px;
+      font-weight: 700;
+      letter-spacing: 2.5px;
+      text-transform: uppercase;
+      color: #40916c;
+      margin-bottom: 8px;
+    }
+
+    .section-title {
+      font-size: 32px;
+      font-weight: 800;
+      color: #1a1a2e;
+      line-height: 1.2;
+      margin-bottom: 12px;
+    }
+
+    .section-desc {
+      font-size: 15px;
+      color: #6b7280;
+      line-height: 1.8;
+      margin-bottom: 40px;
+      max-width: 680px;
+    }
+
+    .divider {
+      height: 3px;
+      width: 48px;
+      background: linear-gradient(90deg, #40916c, #74c69d);
+      border-radius: 2px;
+      margin-bottom: 40px;
+    }
+
+    /* ── PLATFORM OVERVIEW GRID ── */
+    .module-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 16px;
+      margin-bottom: 40px;
+    }
+
+    .module-card {
+      background: #f8fffe;
+      border: 1px solid #d1fae5;
+      border-radius: 12px;
+      padding: 20px;
+    }
+
+    .module-card-icon {
+      font-size: 22px;
+      margin-bottom: 10px;
+    }
+
+    .module-card h4 {
+      font-size: 13px;
+      font-weight: 700;
+      color: #1a472a;
+      margin-bottom: 4px;
+    }
+
+    .module-card p {
+      font-size: 12px;
+      color: #6b7280;
+      line-height: 1.5;
+    }
+
+    /* ── ISSUE CARDS ── */
+    .issue-list {
+      display: flex;
+      flex-direction: column;
+      gap: 20px;
+    }
+
+    .issue-card {
+      border-radius: 12px;
+      padding: 24px 28px;
+      border-left: 4px solid;
+      background: #fffbf5;
+      border-color: #f59e0b;
+    }
+
+    .issue-card.critical {
+      background: #fff5f5;
+      border-color: #ef4444;
+    }
+
+    .issue-header {
+      display: flex;
+      align-items: flex-start;
+      justify-content: space-between;
+      margin-bottom: 10px;
+    }
+
+    .issue-title {
+      font-size: 15px;
+      font-weight: 700;
+      color: #1a1a2e;
+    }
+
+    .issue-badge {
+      font-size: 10px;
+      font-weight: 700;
+      letter-spacing: 1px;
+      text-transform: uppercase;
+      padding: 3px 10px;
+      border-radius: 20px;
+      background: #fef3c7;
+      color: #92400e;
+      white-space: nowrap;
+    }
+
+    .issue-badge.critical {
+      background: #fee2e2;
+      color: #991b1b;
+    }
+
+    .issue-desc {
+      font-size: 13px;
+      color: #4b5563;
+      line-height: 1.7;
+      margin-bottom: 12px;
+    }
+
+    .issue-file {
+      font-size: 11px;
+      font-family: 'Courier New', monospace;
+      color: #40916c;
+      background: #f0fdf4;
+      padding: 4px 10px;
+      border-radius: 6px;
+      display: inline-block;
+    }
+
+    /* ── FEATURE PITCH CARDS ── */
+    .feature-list {
+      display: flex;
+      flex-direction: column;
+      gap: 28px;
+    }
+
+    .feature-card {
+      border-radius: 16px;
+      border: 1px solid #e5e7eb;
+      overflow: hidden;
+    }
+
+    .feature-header {
+      padding: 24px 28px 20px;
+      background: #f9fafb;
+      border-bottom: 1px solid #e5e7eb;
+      display: flex;
+      align-items: center;
+      gap: 16px;
+    }
+
+    .feature-number {
+      width: 36px;
+      height: 36px;
+      background: linear-gradient(135deg, #1a472a, #40916c);
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 14px;
+      font-weight: 800;
+      color: #fff;
+      flex-shrink: 0;
+    }
+
+    .feature-header-text h3 {
+      font-size: 17px;
+      font-weight: 700;
+      color: #1a1a2e;
+      margin-bottom: 2px;
+    }
+
+    .feature-header-text span {
+      font-size: 12px;
+      color: #6b7280;
+      font-weight: 500;
+    }
+
+    .feature-body {
+      padding: 24px 28px;
+    }
+
+    .feature-body p {
+      font-size: 13.5px;
+      color: #4b5563;
+      line-height: 1.8;
+      margin-bottom: 16px;
+    }
+
+    .feature-points {
+      list-style: none;
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+    }
+
+    .feature-points li {
+      font-size: 13px;
+      color: #374151;
+      padding-left: 20px;
+      position: relative;
+      line-height: 1.6;
+    }
+
+    .feature-points li::before {
+      content: '→';
+      position: absolute;
+      left: 0;
+      color: #40916c;
+      font-weight: 700;
+    }
+
+    .feature-tag {
+      display: inline-block;
+      font-size: 10px;
+      font-weight: 700;
+      letter-spacing: 1px;
+      text-transform: uppercase;
+      padding: 3px 10px;
+      border-radius: 20px;
+      margin-top: 12px;
+    }
+
+    .tag-green { background: #dcfce7; color: #166534; }
+    .tag-blue { background: #dbeafe; color: #1e40af; }
+    .tag-purple { background: #ede9fe; color: #6d28d9; }
+    .tag-orange { background: #ffedd5; color: #9a3412; }
+
+    /* ── ROADMAP TIMELINE ── */
+    .timeline {
+      position: relative;
+      padding-left: 32px;
+    }
+
+    .timeline::before {
+      content: '';
+      position: absolute;
+      left: 10px;
+      top: 8px;
+      bottom: 8px;
+      width: 2px;
+      background: linear-gradient(to bottom, #40916c, #d1fae5);
+    }
+
+    .timeline-item {
+      position: relative;
+      margin-bottom: 32px;
+    }
+
+    .timeline-item:last-child {
+      margin-bottom: 0;
+    }
+
+    .timeline-dot {
+      position: absolute;
+      left: -27px;
+      top: 4px;
+      width: 16px;
+      height: 16px;
+      border-radius: 50%;
+      background: #40916c;
+      border: 3px solid #fff;
+      box-shadow: 0 0 0 2px #40916c;
+    }
+
+    .timeline-phase {
+      font-size: 10px;
+      font-weight: 700;
+      letter-spacing: 1.5px;
+      text-transform: uppercase;
+      color: #40916c;
+      margin-bottom: 4px;
+    }
+
+    .timeline-title {
+      font-size: 16px;
+      font-weight: 700;
+      color: #1a1a2e;
+      margin-bottom: 8px;
+    }
+
+    .timeline-items {
+      list-style: none;
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+    }
+
+    .timeline-items li {
+      font-size: 13px;
+      color: #4b5563;
+      padding-left: 16px;
+      position: relative;
+    }
+
+    .timeline-items li::before {
+      content: '•';
+      position: absolute;
+      left: 4px;
+      color: #40916c;
+    }
+
+    /* ── CLOSING PAGE ── */
+    .closing {
+      min-height: 100vh;
+      background: linear-gradient(135deg, #1a472a 0%, #2d6a4f 60%, #40916c 100%);
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      align-items: center;
+      text-align: center;
+      padding: 80px;
+      page-break-after: avoid;
+    }
+
+    .closing-icon {
+      font-size: 48px;
+      margin-bottom: 32px;
+    }
+
+    .closing h2 {
+      font-size: 40px;
+      font-weight: 800;
+      color: #fff;
+      margin-bottom: 16px;
+      line-height: 1.2;
+    }
+
+    .closing p {
+      font-size: 16px;
+      color: rgba(255,255,255,0.7);
+      max-width: 480px;
+      line-height: 1.8;
+      margin-bottom: 48px;
+    }
+
+    .closing-stats {
+      display: flex;
+      gap: 64px;
+      justify-content: center;
+    }
+
+    .closing-stat {
+      text-align: center;
+    }
+
+    .closing-stat-number {
+      font-size: 40px;
+      font-weight: 800;
+      color: #fff;
+      line-height: 1;
+      margin-bottom: 6px;
+    }
+
+    .closing-stat-label {
+      font-size: 12px;
+      font-weight: 500;
+      color: rgba(255,255,255,0.6);
+      text-transform: uppercase;
+      letter-spacing: 1px;
+    }
+
+    /* ── DOWNLOAD BUTTON ── */
+    .download-btn {
+      position: fixed;
+      bottom: 32px;
+      right: 32px;
+      z-index: 9999;
+      background: linear-gradient(135deg, #1a472a, #40916c);
+      color: #fff;
+      border: none;
+      border-radius: 50px;
+      padding: 14px 28px;
+      font-family: 'Inter', sans-serif;
+      font-size: 14px;
+      font-weight: 600;
+      cursor: pointer;
+      box-shadow: 0 4px 24px rgba(26,71,42,0.35);
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      transition: transform 0.15s, box-shadow 0.15s;
+    }
+    .download-btn:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 8px 32px rgba(26,71,42,0.45);
+    }
+
+    /* ── PRINT ── */
+    @media print {
+      body { -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+      .cover, .closing { min-height: 100vh; }
+      .download-btn { display: none; }
+    }
+
+    @page {
+      size: A4;
+      margin: 0;
+    }
+  </style>
+</head>
+<body>
+
+  <!-- ══════════════════════════════════════════
+       COVER PAGE
+  ══════════════════════════════════════════ -->
+  <div class="cover">
+    <div class="cover-logo">
+      <div class="cover-logo-icon">🏠</div>
+      <div class="cover-logo-text">CareConnect AFH</div>
+    </div>
+    <div class="cover-tag">Product Roadmap & Feature Proposal</div>
+    <h1>Taking CareConnect to the Next Level</h1>
+    <p class="cover-subtitle">
+      A comprehensive overview of the current platform and the four key features
+      that will significantly increase its value, improve daily operations,
+      and open new revenue opportunities.
+    </p>
+    <div class="cover-meta">
+      <div class="cover-meta-item">
+        <label>Prepared For</label>
+        <span>CareConnect AFH Client</span>
+      </div>
+      <div class="cover-meta-item">
+        <label>Date</label>
+        <span>May 2026</span>
+      </div>
+      <div class="cover-meta-item">
+        <label>Document Type</label>
+        <span>Internal Roadmap</span>
+      </div>
+    </div>
+  </div>
+
+
+  <!-- ══════════════════════════════════════════
+       PAGE 1 — PLATFORM OVERVIEW
+  ══════════════════════════════════════════ -->
+  <div class="page">
+    <div class="section-label">What's Already Built</div>
+    <div class="section-title">A Comprehensive AFH Platform</div>
+    <div class="divider"></div>
+    <p class="section-desc">
+      CareConnect AFH is a fully built, enterprise-grade healthcare management system for
+      Adult Family Homes. The platform already covers the complete operational workflow —
+      from resident intake to billing, medications, care planning, and compliance.
+    </p>
+
+    <div class="module-grid">
+      <div class="module-card">
+        <div class="module-card-icon">👤</div>
+        <h4>Resident Management</h4>
+        <p>150+ fields, document folders, PDF extraction, e-signatures</p>
+      </div>
+      <div class="module-card">
+        <div class="module-card-icon">💊</div>
+        <h4>eMAR System</h4>
+        <p>Medication schedules, dose recording, PRN tracking, vital signs, MAR export</p>
+      </div>
+      <div class="module-card">
+        <div class="module-card-icon">📋</div>
+        <h4>Care Plans</h4>
+        <p>Problems, goals, interventions, care library, version history, PDF export</p>
+      </div>
+      <div class="module-card">
+        <div class="module-card-icon">🧠</div>
+        <h4>NCP AI Extraction</h4>
+        <p>432+ field extraction from DSHS assessment PDFs, DOCX generation</p>
+      </div>
+      <div class="module-card">
+        <div class="module-card-icon">📊</div>
+        <h4>Behavioral Tracking</h4>
+        <p>12+ behavior types, AI analysis, trend charts, escalation alerts</p>
+      </div>
+      <div class="module-card">
+        <div class="module-card-icon">🚨</div>
+        <h4>Incident Reports</h4>
+        <p>DSHS-aligned forms, body map, witness info, status tracking</p>
+      </div>
+      <div class="module-card">
+        <div class="module-card-icon">💰</div>
+        <h4>Billing & Claims</h4>
+        <p>Tiered billing, invoice generation, claims records, Excel export</p>
+      </div>
+      <div class="module-card">
+        <div class="module-card-icon">🏢</div>
+        <h4>Facility Management</h4>
+        <p>Multi-facility, visitor log, evacuation drills, document management</p>
+      </div>
+      <div class="module-card">
+        <div class="module-card-icon">👥</div>
+        <h4>Staff Management</h4>
+        <p>Staff profiles, document compliance, expiry alerts, facility assignment</p>
+      </div>
+      <div class="module-card">
+        <div class="module-card-icon">📝</div>
+        <h4>Progress Notes</h4>
+        <p>Care, behavior, incident, status update notes with version history</p>
+      </div>
+      <div class="module-card">
+        <div class="module-card-icon">📅</div>
+        <h4>Appointments & Tasks</h4>
+        <p>Calendar scheduling, reminders, task assignment, push notifications</p>
+      </div>
+      <div class="module-card">
+        <div class="module-card-icon">🔒</div>
+        <h4>Audit & Compliance</h4>
+        <p>HIPAA audit trail, 100+ action types, PHI access tracking, RBAC</p>
+      </div>
+    </div>
+  </div>
+
+
+  <!-- ══════════════════════════════════════════
+       PAGE 2 — FEATURES TO PITCH
+  ══════════════════════════════════════════ -->
+  <div class="page">
+    <div class="section-label">Growth Opportunities</div>
+    <div class="section-title">Four Features to Build Next</div>
+    <div class="divider"></div>
+    <p class="section-desc">
+      These four features represent the highest-value additions to the platform.
+      Each addresses a real, daily pain point for AFH operators and their staff.
+    </p>
+
+    <div class="feature-list">
+
+      <div class="feature-card">
+        <div class="feature-header">
+          <div class="feature-number">1</div>
+          <div class="feature-header-text">
+            <h3>Discharge & Transfer Workflow</h3>
+            <span>Most immediate clinical gap — operators will ask for this soon</span>
+          </div>
+        </div>
+        <div class="feature-body">
+          <p>
+            Residents move through different stages of care — some are discharged, some transfer
+            to another facility, and some require hospital stays. The next step for the platform
+            is a complete discharge and transfer workflow that handles every scenario cleanly
+            and keeps the full resident history intact.
+          </p>
+          <ul class="feature-points">
+            <li>Discharge a resident with reason, date, and destination</li>
+            <li>Transfer a resident between facilities within the same organization</li>
+            <li>Maintain full history — the resident record is preserved, not deleted</li>
+            <li>Auto-close open medications, care plans, and tasks on discharge</li>
+          </ul>
+          <span class="feature-tag tag-green">Clinical</span>
+          <span class="feature-tag tag-orange">Compliance</span>
+        </div>
+      </div>
+
+      <div class="feature-card">
+        <div class="feature-header">
+          <div class="feature-number">2</div>
+          <div class="feature-header-text">
+            <h3>Family / Guardian Portal</h3>
+            <span>Emotional value — families pay for peace of mind</span>
+          </div>
+        </div>
+        <div class="feature-body">
+          <p>
+            Families want to stay connected to their loved one's care without having to call
+            the facility every time. A dedicated family portal gives them real-time visibility
+            into daily care — reducing unnecessary calls, building trust, and setting this
+            facility apart from others that offer no family transparency at all.
+          </p>
+          <ul class="feature-points">
+            <li>View daily progress notes, medication compliance, and behavioral status</li>
+            <li>Receive push notifications for incidents, missed medications, or health changes</li>
+            <li>Message staff directly through the platform</li>
+            <li>Sign consent and admission documents electronically from home</li>
+          </ul>
+          <span class="feature-tag tag-blue">New Revenue</span>
+          <span class="feature-tag tag-green">Family Engagement</span>
+        </div>
+      </div>
+
+    </div>
+  </div>
+
+
+  <!-- ══════════════════════════════════════════
+       PAGE 4 — FEATURES CONTINUED
+  ══════════════════════════════════════════ -->
+  <div class="page">
+    <div class="section-label">Growth Opportunities (continued)</div>
+    <div class="section-title">Four Features to Build Next</div>
+    <div class="divider"></div>
+
+    <div class="feature-list">
+
+      <div class="feature-card">
+        <div class="feature-header">
+          <div class="feature-number">3</div>
+          <div class="feature-header-text">
+            <h3>Mobile App</h3>
+            <span>Caregivers are on the floor — not at a desk</span>
+          </div>
+        </div>
+        <div class="feature-body">
+          <p>
+            Every workflow in the current platform assumes the user is sitting at a computer.
+            But caregivers give medications at 7am, write incident notes in the hallway,
+            and check vitals at the bedside. A mobile app brings the platform to where
+            the work actually happens — reducing paper notes and improving documentation accuracy.
+          </p>
+          <ul class="feature-points">
+            <li>Record a MAR dose directly at the medication cart with one tap</li>
+            <li>Capture incident photos on your phone — attached directly to the report</li>
+            <li>Voice-to-text progress notes while walking the floor</li>
+            <li>Push notifications 10 minutes before a medication is due</li>
+            <li>Works on both iOS and Android (React Native)</li>
+          </ul>
+          <span class="feature-tag tag-purple">Caregiver Experience</span>
+          <span class="feature-tag tag-green">Documentation Quality</span>
+        </div>
+      </div>
+
+      <div class="feature-card">
+        <div class="feature-header">
+          <div class="feature-number">4</div>
+          <div class="feature-header-text">
+            <h3>Staff Scheduling Module</h3>
+            <span>Operators are managing shifts in WhatsApp right now</span>
+          </div>
+        </div>
+        <div class="feature-body">
+          <p>
+            Washington State requires a minimum caregiver-to-resident ratio at all times.
+            Despite this, scheduling is the one critical operation still handled completely
+            outside the platform — in WhatsApp groups, paper sheets, or spreadsheets.
+            When someone calls in sick, operators scramble manually. Scheduling inside
+            the platform creates both compliance coverage and long-term stickiness.
+          </p>
+          <ul class="feature-points">
+            <li>Weekly shift scheduling published to all staff</li>
+            <li>Staff can view their assigned shifts and request time off</li>
+            <li>Automatic alert when a shift is uncovered and minimum ratios are at risk</li>
+            <li>Know exactly who was on duty at the time of any incident</li>
+            <li>Once scheduling lives here, the operator will never leave the platform</li>
+          </ul>
+          <span class="feature-tag tag-orange">Operations</span>
+          <span class="feature-tag tag-green">Compliance</span>
+          <span class="feature-tag tag-blue">Retention</span>
+        </div>
+      </div>
+
+    </div>
+  </div>
+
+
+  <!-- ══════════════════════════════════════════
+       PAGE 5 — ROADMAP TIMELINE
+  ══════════════════════════════════════════ -->
+  <div class="page">
+    <div class="section-label">Execution Plan</div>
+    <div class="section-title">Recommended Roadmap</div>
+    <div class="divider"></div>
+    <p class="section-desc">
+      A phased approach — fix what's broken first, then build new features in order of
+      client impact. Each phase delivers visible value before moving to the next.
+    </p>
+
+    <div class="timeline">
+
+      <div class="timeline-item">
+        <div class="timeline-dot"></div>
+        <div class="timeline-phase">Phase 1 — Short Term</div>
+        <div class="timeline-title">Discharge & Transfer Workflow</div>
+        <ul class="timeline-items">
+          <li>Add discharge fields to Resident schema (date, reason, type)</li>
+          <li>Build discharge and transfer API endpoints</li>
+          <li>Build discharge modal and transfer flow in frontend</li>
+          <li>Auto-close open medications, care plans, tasks on discharge</li>
+        </ul>
+      </div>
+
+      <div class="timeline-item">
+        <div class="timeline-dot"></div>
+        <div class="timeline-phase">Phase 2 — Medium Term</div>
+        <div class="timeline-title">Family / Guardian Portal</div>
+        <ul class="timeline-items">
+          <li>Design and build dedicated guardian-facing UI</li>
+          <li>Controlled read access to notes, medications, behavioral trends</li>
+          <li>Incident and health change push notifications to family</li>
+          <li>In-app messaging between family and staff</li>
+          <li>Remote document signing</li>
+        </ul>
+      </div>
+
+      <div class="timeline-item">
+        <div class="timeline-dot"></div>
+        <div class="timeline-phase">Phase 3 — Medium Term</div>
+        <div class="timeline-title">Mobile App (React Native)</div>
+        <ul class="timeline-items">
+          <li>MAR dose recording on mobile</li>
+          <li>Photo capture for incidents</li>
+          <li>Voice-to-text progress notes</li>
+          <li>Medication due and missed dose push notifications</li>
+          <li>iOS and Android deployment</li>
+        </ul>
+      </div>
+
+      <div class="timeline-item">
+        <div class="timeline-dot"></div>
+        <div class="timeline-phase">Phase 4 — Long Term</div>
+        <div class="timeline-title">Staff Scheduling Module</div>
+        <ul class="timeline-items">
+          <li>Weekly shift scheduling and staff availability management</li>
+          <li>Minimum caregiver ratio compliance alerts</li>
+          <li>Shift coverage notifications</li>
+          <li>On-duty staff linked to incident and MAR records</li>
+        </ul>
+      </div>
+
+    </div>
+  </div>
+
+
+  <!-- ══════════════════════════════════════════
+       CLOSING PAGE
+  ══════════════════════════════════════════ -->
+  <div class="closing">
+    <div class="closing-icon">🏠</div>
+    <h2>A Platform Built to Grow</h2>
+    <p>
+      CareConnect AFH already has the foundation of an enterprise healthcare platform.
+      These improvements will take it from a documentation tool to the central
+      operating system of every AFH facility.
+    </p>
+    <div class="closing-stats">
+      <div class="closing-stat">
+        <div class="closing-stat-number">12+</div>
+        <div class="closing-stat-label">Modules Built</div>
+      </div>
+      <div class="closing-stat">
+        <div class="closing-stat-number">4</div>
+        <div class="closing-stat-label">New Features</div>
+      </div>
+      <div class="closing-stat">
+        <div class="closing-stat-number">4</div>
+        <div class="closing-stat-label">Phases</div>
+      </div>
+    </div>
+  </div>
+
+  <button class="download-btn" onclick="window.print()">
+    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+      <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/>
+      <polyline points="7 10 12 15 17 10"/>
+      <line x1="12" y1="15" x2="12" y2="3"/>
+    </svg>
+    Download PDF
+  </button>
+
+</body>
+</html>

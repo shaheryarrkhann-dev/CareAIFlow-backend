@@ -1,0 +1,18 @@
+{
+  "common_fields": [
+    "admission_agreement_initial",
+    "admission_date",
+    "birth_date",
+    "daily_medication_log",
+    "doctor_address",
+    "doctor_name",
+    "doctor_phone",
+    "hospice_name",
+    "list_of_medications",
+    "pharmacy_name",
+    "resident_name",
+    "resident_sex",
+    "special_diet_ordered",
+    "ssn"
+  ]
+}
